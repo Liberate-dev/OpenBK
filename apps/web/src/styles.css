@@ -1,0 +1,27 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+
+:root {
+  --ink-900: #102039;
+  --seal-600: #d94b3d;
+  --paper-050: #f8f4ec;
+  --paper-100: #efe8da;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink-900);
+  background:
+    radial-gradient(circle at 10% 10%, rgb(255 255 255 / 40%), transparent 40%),
+    radial-gradient(circle at 90% 20%, rgb(217 75 61 / 12%), transparent 35%),
+    linear-gradient(180deg, var(--paper-050), var(--paper-100));
+}
+
+#root {
+  min-height: 100vh;
+}
+

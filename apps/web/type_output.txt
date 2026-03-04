@@ -1,0 +1,5 @@
+
+> @openbk/web@0.1.0 typecheck
+> tsc --noEmit -p tsconfig.app.json
+
+src/routes/send-letter.tsx(7,24): error TS2322: Type '"/nis-gate"' is not assignable to type '"/" | "." | ".." | "/admin" | "/send-letter" | "/admin/inbox" | "/admin/login"'.

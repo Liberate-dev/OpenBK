@@ -1,0 +1,10 @@
+
+> @openbk/web@0.1.0 typecheck
+> tsc --noEmit -p tsconfig.app.json
+
+src/providers/router.ts(6,3): error TS2322: Type 'unknown' is not assignable to type 'AnyRoute | undefined'.
+src/routes/admin.inbox.tsx(4,38): error TS2345: Argument of type '"/admin/inbox"' is not assignable to parameter of type 'undefined'.
+src/routes/index.tsx(7,38): error TS2345: Argument of type '"/"' is not assignable to parameter of type 'undefined'.
+src/routes/nis-gate.tsx(4,38): error TS2345: Argument of type '"/nis-gate"' is not assignable to parameter of type 'undefined'.
+src/routes/send-letter.tsx(4,38): error TS2345: Argument of type '"/send-letter"' is not assignable to parameter of type 'undefined'.
+vite.config.ts(1,36): error TS2307: Cannot find module 'node:url' or its corresponding type declarations.

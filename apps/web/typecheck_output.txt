@@ -1,0 +1,42 @@
+
+> @openbk/web@0.1.0 typecheck
+> tsc --noEmit -p tsconfig.app.json
+
+src/features/admin-inbox/components/AdminDashboardPanel.tsx(1,40): error TS6133: 'Stack' is declared but its value is never read.
+src/features/admin-inbox/components/AdminDashboardPanel.tsx(20,18): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & GridBaseProps & { sx?: SxProps<Theme> | undefined; } & SystemProps<...> & Omit<...>): Element | null', gave the following error.
+    Property 'component' is missing in type '{ children: Element; item: true; xs: number; sm: number; }' but required in type '{ component: ElementType<any, keyof IntrinsicElements>; }'.
+  Overload 2 of 2, '(props: DefaultComponentProps<GridTypeMap<{}, "div">>): Element | null', gave the following error.
+    Type '{ children: Element; item: true; xs: number; sm: number; }' is not assignable to type 'IntrinsicAttributes & GridBaseProps & { sx?: SxProps<Theme> | undefined; } & SystemProps<Theme> & Omit<...>'.
+      Property 'item' does not exist on type 'IntrinsicAttributes & GridBaseProps & { sx?: SxProps<Theme> | undefined; } & SystemProps<Theme> & Omit<...>'.
+src/features/admin-inbox/components/AdminDashboardPanel.tsx(30,18): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & GridBaseProps & { sx?: SxProps<Theme> | undefined; } & SystemProps<...> & Omit<...>): Element | null', gave the following error.
+    Property 'component' is missing in type '{ children: Element; item: true; xs: number; sm: number; }' but required in type '{ component: ElementType<any, keyof IntrinsicElements>; }'.
+  Overload 2 of 2, '(props: DefaultComponentProps<GridTypeMap<{}, "div">>): Element | null', gave the following error.
+    Type '{ children: Element; item: true; xs: number; sm: number; }' is not assignable to type 'IntrinsicAttributes & GridBaseProps & { sx?: SxProps<Theme> | undefined; } & SystemProps<Theme> & Omit<...>'.
+      Property 'item' does not exist on type 'IntrinsicAttributes & GridBaseProps & { sx?: SxProps<Theme> | undefined; } & SystemProps<Theme> & Omit<...>'.
+src/features/admin-inbox/components/AdminDashboardPanel.tsx(40,18): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & GridBaseProps & { sx?: SxProps<Theme> | undefined; } & SystemProps<...> & Omit<...>): Element | null', gave the following error.
+    Property 'component' is missing in type '{ children: Element; item: true; xs: number; sm: number; }' but required in type '{ component: ElementType<any, keyof IntrinsicElements>; }'.
+  Overload 2 of 2, '(props: DefaultComponentProps<GridTypeMap<{}, "div">>): Element | null', gave the following error.
+    Type '{ children: Element; item: true; xs: number; sm: number; }' is not assignable to type 'IntrinsicAttributes & GridBaseProps & { sx?: SxProps<Theme> | undefined; } & SystemProps<Theme> & Omit<...>'.
+      Property 'item' does not exist on type 'IntrinsicAttributes & GridBaseProps & { sx?: SxProps<Theme> | undefined; } & SystemProps<Theme> & Omit<...>'.
+src/routes/admin.tsx(37,26): error TS2339: Property 'useRouter' does not exist on type 'Route<Register, RootRoute<Register, undefined, { queryClient: QueryClient; auth: { getSession: () => StudentSession | null; setSession: (session: StudentSession) => void; clearSession: () => void; isAuthenticated: () => boolean; }; }, ... 8 more ..., undefined>, ... 15 more ..., undefined>'.
+src/routes/admin.tsx(64,22): error TS2769: No overload matches this call.
+  Overload 1 of 3, '(props: { href: string; } & ListItemButtonOwnProps & Omit<ButtonBaseOwnProps, "classes"> & CommonProps & Omit<DetailedHTMLProps<AnchorHTMLAttributes<...>, HTMLAnchorElement>, "disabled" | ... 21 more ... | "selected">): Element', gave the following error.
+    Type '{ children: Element[]; component: LinkComponent<"a", string>; to: string; activeProps: { sx: { bgcolor: string; color: string; }; }; }' is not assignable to type 'IntrinsicAttributes & { href: string; } & ListItemButtonOwnProps & Omit<ButtonBaseOwnProps, "classes"> & CommonProps & Omit<...>'.
+      Property 'component' does not exist on type 'IntrinsicAttributes & { href: string; } & ListItemButtonOwnProps & Omit<ButtonBaseOwnProps, "classes"> & CommonProps & Omit<...>'.
+  Overload 2 of 3, '(props: { component: LinkComponent<"a", string>; } & ListItemButtonOwnProps & Omit<ButtonBaseOwnProps, "classes"> & CommonProps & Omit<...>): Element | null', gave the following error.
+    Object literal may only specify known properties, and 'sx' does not exist in type 'Partial<LinkComponentReactProps<"a"> & { [key: `data-${string}`]: unknown; }> | (() => Partial<LinkComponentReactProps<"a"> & { [key: `data-${string}`]: unknown; }>)'.
+  Overload 3 of 3, '(props: DefaultComponentProps<ExtendButtonBaseTypeMap<ListItemButtonTypeMap<{}, "div">>>): Element | null', gave the following error.
+    Type '{ children: Element[]; component: LinkComponent<"a", string>; to: string; activeProps: { sx: { bgcolor: string; color: string; }; }; }' is not assignable to type 'IntrinsicAttributes & ListItemButtonOwnProps & Omit<ButtonBaseOwnProps, "classes"> & CommonProps & Omit<...>'.
+      Property 'component' does not exist on type 'IntrinsicAttributes & ListItemButtonOwnProps & Omit<ButtonBaseOwnProps, "classes"> & CommonProps & Omit<...>'.
+src/routes/admin.tsx(72,22): error TS2769: No overload matches this call.
+  Overload 1 of 3, '(props: { href: string; } & ListItemButtonOwnProps & Omit<ButtonBaseOwnProps, "classes"> & CommonProps & Omit<DetailedHTMLProps<AnchorHTMLAttributes<...>, HTMLAnchorElement>, "disabled" | ... 21 more ... | "selected">): Element', gave the following error.
+    Type '{ children: Element[]; component: LinkComponent<"a", string>; to: string; activeProps: { sx: { bgcolor: string; color: string; }; }; }' is not assignable to type 'IntrinsicAttributes & { href: string; } & ListItemButtonOwnProps & Omit<ButtonBaseOwnProps, "classes"> & CommonProps & Omit<...>'.
+      Property 'component' does not exist on type 'IntrinsicAttributes & { href: string; } & ListItemButtonOwnProps & Omit<ButtonBaseOwnProps, "classes"> & CommonProps & Omit<...>'.
+  Overload 2 of 3, '(props: { component: LinkComponent<"a", string>; } & ListItemButtonOwnProps & Omit<ButtonBaseOwnProps, "classes"> & CommonProps & Omit<...>): Element | null', gave the following error.
+    Object literal may only specify known properties, and 'sx' does not exist in type 'Partial<LinkComponentReactProps<"a"> & { [key: `data-${string}`]: unknown; }> | (() => Partial<LinkComponentReactProps<"a"> & { [key: `data-${string}`]: unknown; }>)'.
+  Overload 3 of 3, '(props: DefaultComponentProps<ExtendButtonBaseTypeMap<ListItemButtonTypeMap<{}, "div">>>): Element | null', gave the following error.
+    Type '{ children: Element[]; component: LinkComponent<"a", string>; to: string; activeProps: { sx: { bgcolor: string; color: string; }; }; }' is not assignable to type 'IntrinsicAttributes & ListItemButtonOwnProps & Omit<ButtonBaseOwnProps, "classes"> & CommonProps & Omit<...>'.
+      Property 'component' does not exist on type 'IntrinsicAttributes & ListItemButtonOwnProps & Omit<ButtonBaseOwnProps, "classes"> & CommonProps & Omit<...>'.

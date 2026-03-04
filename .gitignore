@@ -1,0 +1,44 @@
+# IDEs / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+.pnpm-debug.log
+
+# Build output
+dist/
+out/
+build/
+.next/
+.nuxt/
+
+# PHP / Laravel
+vendor/
+.env
+.env.backup
+.env.testing
+storage/*.key
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+/storage/app/public
+public/storage
+public/hot
+
+# Env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
