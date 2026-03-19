@@ -3,15 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Mail\AdminOtpMail;
 use App\Models\ActivityLog;
 use App\Models\Admin;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class AdminAuthController extends Controller
 {
@@ -35,100 +33,178 @@ class AdminAuthController extends Controller
             ], 401);
         }
 
-        // If admin has an email configured, enforce 2FA.
-        if (! empty($admin->email)) {
-            $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-            $admin->otp_code = Hash::make($otp);
-            $admin->otp_expires_at = Carbon::now()->addMinutes(5);
-            $admin->save();
-
-            try {
-                Mail::to($admin->email)->send(new AdminOtpMail($otp));
-                $sent = true;
-            } catch (\Exception $e) {
-                $sent = false;
-                Log::error('Mail error: '.$e->getMessage());
-            }
-
-            ActivityLog::log('otp_sent', "OTP sent to {$admin->username}", $admin->id, $request->ip());
-
+        if (empty($admin->nip) || empty($admin->full_name)) {
             return response()->json([
-                'success' => true,
-                'requires_2fa' => true,
-                'otp_id' => $admin->id,
-                'message' => $sent
-                    ? 'Kode OTP telah dikirim ke Email Anda.'
-                    : 'Gagal mengirim OTP ke Email. Silakan coba lagi.',
-            ]);
+                'success' => false,
+                'message' => 'Akun admin belum memiliki NIP atau nama lengkap. Hubungi Admin IT.',
+            ], 403);
         }
 
-        // No 2FA configured, issue token immediately.
-        $token = $admin->createToken('admin-token')->plainTextToken;
+        $challengeToken = Str::random(64);
 
-        ActivityLog::log('login', "{$admin->username} logged in (no 2FA)", $admin->id, $request->ip());
+        $admin->forceFill([
+            'login_challenge_hash' => Hash::make($challengeToken),
+            'login_challenge_expires_at' => Carbon::now()->addMinutes(5),
+            'login_token_hash' => null,
+            'login_token_expires_at' => null,
+        ])->save();
+
+        ActivityLog::log('login', "{$admin->username} passed primary login", $admin->id, $request->ip());
 
         return response()->json([
             'success' => true,
-            'token' => $token,
-            'username' => $admin->username,
-            'role' => $admin->role,
-            'message' => 'Login berhasil.',
+            'requires_token' => true,
+            'challenge_id' => $admin->id,
+            'challenge_token' => $challengeToken,
+            'message' => 'Username dan password valid. Silakan generate token login.',
         ]);
     }
 
-    public function verifyOtp(Request $request): JsonResponse
+    public function generateToken(Request $request): JsonResponse
     {
         $request->merge([
-            'otp_code' => trim((string) $request->input('otp_code')),
+            'nip' => trim((string) $request->input('nip')),
+            'full_name' => trim((string) $request->input('full_name')),
         ]);
 
         $validated = $request->validate([
-            'otp_id' => ['required', 'integer', 'min:1', 'exists:admins,id'],
-            'otp_code' => ['required', 'string', 'regex:/^\d{6}$/'],
+            'challenge_id' => ['required', 'integer', 'min:1', 'exists:admins,id'],
+            'challenge_token' => ['required', 'string', 'min:40', 'max:255'],
+            'nip' => ['required', 'string', 'regex:/^\d{5,30}$/'],
+            'full_name' => ['required', 'string', 'min:3', 'max:150'],
         ]);
 
-        $admin = Admin::find($validated['otp_id']);
+        $admin = $this->resolveChallengeAdmin((int) $validated['challenge_id'], $validated['challenge_token']);
 
-        if (! $admin || empty($admin->otp_code)) {
+        if (! $admin) {
             return response()->json([
                 'success' => false,
-                'message' => 'Sesi OTP tidak valid.',
+                'message' => 'Sesi login tidak valid atau sudah kadaluarsa. Silakan login ulang.',
             ], 400);
         }
 
-        if (Carbon::now()->greaterThan($admin->otp_expires_at)) {
-            $admin->otp_code = null;
-            $admin->otp_expires_at = null;
-            $admin->save();
-
+        if (
+            $admin->nip !== $validated['nip']
+            || $this->normalizeFullName((string) $admin->full_name) !== $this->normalizeFullName($validated['full_name'])
+        ) {
             return response()->json([
                 'success' => false,
-                'message' => 'Kode OTP sudah kadaluarsa. Silakan login ulang.',
-            ], 400);
-        }
-
-        if (! Hash::check($validated['otp_code'], $admin->otp_code)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Kode OTP salah.',
+                'message' => 'NIP atau nama lengkap tidak sesuai.',
             ], 401);
         }
 
-        // Clear OTP.
-        $admin->otp_code = null;
-        $admin->otp_expires_at = null;
-        $admin->save();
+        $loginToken = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        $admin->forceFill([
+            'login_token_hash' => Hash::make($loginToken),
+            'login_token_expires_at' => Carbon::now()->addMinutes(5),
+            'login_challenge_expires_at' => Carbon::now()->addMinutes(5),
+        ])->save();
+
+        ActivityLog::log('token_generated', "Generated login token for {$admin->username}", $admin->id, $request->ip());
+
+        return response()->json([
+            'success' => true,
+            'generated_token' => $loginToken,
+            'message' => 'Token login berhasil dibuat dan berlaku selama 5 menit.',
+        ]);
+    }
+
+    public function verifyToken(Request $request): JsonResponse
+    {
+        $request->merge([
+            'login_token' => trim((string) $request->input('login_token')),
+        ]);
+
+        $validated = $request->validate([
+            'challenge_id' => ['required', 'integer', 'min:1', 'exists:admins,id'],
+            'challenge_token' => ['required', 'string', 'min:40', 'max:255'],
+            'login_token' => ['required', 'string', 'regex:/^\d{6}$/'],
+        ]);
+
+        $admin = $this->resolveChallengeAdmin((int) $validated['challenge_id'], $validated['challenge_token']);
+
+        if (! $admin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sesi login tidak valid atau sudah kadaluarsa. Silakan login ulang.',
+            ], 400);
+        }
+
+        if (empty($admin->login_token_hash) || empty($admin->login_token_expires_at)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token login belum dibuat. Silakan generate token terlebih dahulu.',
+            ], 400);
+        }
+
+        if (Carbon::now()->greaterThan($admin->login_token_expires_at)) {
+            $admin->forceFill([
+                'login_token_hash' => null,
+                'login_token_expires_at' => null,
+            ])->save();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Token login sudah kadaluarsa. Silakan generate token baru atau login ulang.',
+            ], 400);
+        }
+
+        if (! Hash::check($validated['login_token'], $admin->login_token_hash)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token login salah.',
+            ], 401);
+        }
+
+        $admin->forceFill([
+            'login_challenge_hash' => null,
+            'login_challenge_expires_at' => null,
+            'login_token_hash' => null,
+            'login_token_expires_at' => null,
+        ])->save();
 
         $token = $admin->createToken('admin-token')->plainTextToken;
 
-        ActivityLog::log('login', "{$admin->username} logged in (2FA verified)", $admin->id, $request->ip());
+        ActivityLog::log('token_verified', "Verified login token for {$admin->username}", $admin->id, $request->ip());
 
         return response()->json([
             'success' => true,
             'token' => $token,
             'username' => $admin->username,
             'role' => $admin->role,
-            'message' => 'Verifikasi berhasil.',
+            'message' => 'Token berhasil diverifikasi.',
         ]);
+    }
+
+    private function resolveChallengeAdmin(int $challengeId, string $challengeToken): ?Admin
+    {
+        $admin = Admin::find($challengeId);
+
+        if (! $admin || empty($admin->login_challenge_hash) || empty($admin->login_challenge_expires_at)) {
+            return null;
+        }
+
+        if (Carbon::now()->greaterThan($admin->login_challenge_expires_at)) {
+            $admin->forceFill([
+                'login_challenge_hash' => null,
+                'login_challenge_expires_at' => null,
+                'login_token_hash' => null,
+                'login_token_expires_at' => null,
+            ])->save();
+
+            return null;
+        }
+
+        if (! Hash::check($challengeToken, $admin->login_challenge_hash)) {
+            return null;
+        }
+
+        return $admin;
+    }
+
+    private function normalizeFullName(string $value): string
+    {
+        return Str::lower((string) preg_replace('/\s+/', ' ', trim($value)));
     }
 }

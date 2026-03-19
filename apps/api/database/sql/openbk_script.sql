@@ -21,9 +21,11 @@ TRUNCATE TABLE `sessions`;
 TRUNCATE TABLE `password_reset_tokens`;
 TRUNCATE TABLE `users`;
 
--- Keep admins, only clear transient OTP values
+-- Keep admins, only clear transient login challenge and token values
 UPDATE `admins`
-SET `otp_code` = NULL,
-    `otp_expires_at` = NULL;
+SET `login_challenge_hash` = NULL,
+    `login_challenge_expires_at` = NULL,
+    `login_token_hash` = NULL,
+    `login_token_expires_at` = NULL;
 
 SET FOREIGN_KEY_CHECKS = 1;

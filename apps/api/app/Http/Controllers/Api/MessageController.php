@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\Admin;
 use App\Models\Message;
+use App\Models\PublicReport;
 use App\Models\Reply;
 use App\Models\Student;
 use App\Services\RiskScoringService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class MessageController extends Controller
 {
@@ -53,28 +55,51 @@ class MessageController extends Controller
             return $admin;
         }
 
-        $messages = Message::query()
+        $studentMessages = Message::query()
             ->with('student:id,nis')
             ->withCount('replies')
-            ->orderByRaw("
-                CASE risk_level
-                    WHEN 'critical' THEN 1
-                    WHEN 'high' THEN 2
-                    WHEN 'medium' THEN 3
-                    ELSE 4
-                END
-            ")
-            ->orderBy('created_at', 'desc')
             ->get()
             ->map(fn (Message $m) => [
                 'id' => $m->reference_id,
                 'preview' => \Illuminate\Support\Str::limit($m->body, 160),
                 'authorNis' => $m->student?->nis,
+                'authorLabel' => $m->student?->nis ? "NIS {$m->student->nis}" : 'Siswa',
+                'sourceType' => 'student',
                 'riskLevel' => $m->risk_level,
                 'riskScore' => $m->risk_score,
                 'submittedAt' => $m->created_at->toISOString(),
                 'hasReplies' => $m->replies_count > 0,
+                'canReply' => true,
             ]);
+
+        $publicReports = PublicReport::query()
+            ->get()
+            ->map(fn (PublicReport $report) => [
+                'id' => $report->reference_id,
+                'preview' => Str::limit($report->summary.' - '.$report->body, 160),
+                'authorNis' => $report->reporter_nip,
+                'authorLabel' => "{$report->reporter_alias} ({$report->reporter_nip})",
+                'sourceType' => 'public_report',
+                'riskLevel' => $report->risk_level,
+                'riskScore' => $report->risk_score,
+                'submittedAt' => $report->created_at->toISOString(),
+                'hasReplies' => false,
+                'canReply' => false,
+            ]);
+
+        $messages = $studentMessages
+            ->concat($publicReports)
+            ->sort(function (array $a, array $b) {
+                $riskOrder = ['critical' => 1, 'high' => 2, 'medium' => 3, 'low' => 4];
+                $riskCompare = ($riskOrder[$a['riskLevel']] ?? 99) <=> ($riskOrder[$b['riskLevel']] ?? 99);
+
+                if ($riskCompare !== 0) {
+                    return $riskCompare;
+                }
+
+                return strcmp($b['submittedAt'], $a['submittedAt']);
+            })
+            ->values();
 
         return response()->json($messages);
     }
@@ -92,6 +117,33 @@ class MessageController extends Controller
             ], 422);
         }
 
+        if (str_starts_with($referenceId, 'rpt-')) {
+            $report = PublicReport::where('reference_id', $referenceId)->firstOrFail();
+
+            if (! $report->is_read) {
+                $report->is_read = true;
+                $report->save();
+            }
+
+            return response()->json([
+                'id' => $report->reference_id,
+                'body' => $report->body,
+                'authorNis' => $report->reporter_nip,
+                'authorLabel' => "{$report->reporter_alias} ({$report->reporter_nip})",
+                'sourceType' => 'public_report',
+                'studentName' => $report->student_name,
+                'studentClass' => $report->student_class,
+                'studentNis' => $report->student_nis,
+                'summary' => $report->summary,
+                'riskLevel' => $report->risk_level,
+                'riskScore' => $report->risk_score,
+                'riskTags' => $report->risk_tags,
+                'submittedAt' => $report->created_at->toISOString(),
+                'replies' => [],
+                'canReply' => false,
+            ]);
+        }
+
         $message = Message::with('student:id,nis')
             ->with(['replies.admin:id,username', 'replies.student:id,nis'])
             ->where('reference_id', $referenceId)
@@ -107,10 +159,13 @@ class MessageController extends Controller
             'id' => $message->reference_id,
             'body' => $message->body,
             'authorNis' => $message->student?->nis,
+            'authorLabel' => $message->student?->nis ? "NIS {$message->student->nis}" : 'Siswa',
+            'sourceType' => 'student',
             'riskLevel' => $message->risk_level,
             'riskScore' => $message->risk_score,
             'riskTags' => $message->risk_tags,
             'submittedAt' => $message->created_at->toISOString(),
+            'canReply' => true,
             'replies' => $message->replies->map(fn (Reply $r) => [
                 'id' => $r->id,
                 'body' => $r->body,
@@ -131,6 +186,12 @@ class MessageController extends Controller
         if (! $this->isValidReferenceId($referenceId)) {
             return response()->json([
                 'message' => 'Reference ID tidak valid.',
+            ], 422);
+        }
+
+        if (str_starts_with($referenceId, 'rpt-')) {
+            return response()->json([
+                'message' => 'Laporan publik tidak mendukung balasan langsung dari inbox ini.',
             ], 422);
         }
 
@@ -249,8 +310,8 @@ class MessageController extends Controller
     private function requireAdmin(Request $request): Admin|JsonResponse
     {
         $user = $request->user();
-        if (! $user instanceof Admin) {
-            return response()->json(['message' => 'Unauthorized. Admin only.'], 403);
+        if (! $user instanceof Admin || ! $user->isGuruBK()) {
+            return response()->json(['message' => 'Unauthorized. Guru BK only.'], 403);
         }
 
         return $user;

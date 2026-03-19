@@ -22,4 +22,9 @@ class Student extends Model
     {
         return $this->hasMany(Message::class);
     }
+
+    public function passwordResetRequests(): HasMany
+    {
+        return $this->hasMany(StudentPasswordResetRequest::class);
+    }
 }

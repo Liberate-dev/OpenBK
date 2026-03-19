@@ -17,12 +17,12 @@ import {
 } from '@mui/material';
 import PeopleIcon from '@mui/icons-material/People';
 import SchoolIcon from '@mui/icons-material/School';
-import BadgeIcon from '@mui/icons-material/Badge';
 import HistoryIcon from '@mui/icons-material/History';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import DescriptionIcon from '@mui/icons-material/Description';
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
+import KeyOutlinedIcon from '@mui/icons-material/KeyOutlined';
 import { useRouter } from '@tanstack/react-router';
 import { apiClient } from '~lib/apiClient';
 import { getErrorMessage } from '~lib/error';
@@ -115,8 +115,8 @@ export function AdminItDashboardPanel() {
 
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(4, minmax(0, 1fr))' }, gap: 2 }}>
         <MetricCard title="Pengguna Admin" value={metrics.users} subtitle="Aktif" icon={<PeopleIcon />} />
-        <MetricCard title="Akun Siswa" value={metrics.students} subtitle="Terverifikasi" icon={<SchoolIcon />} />
-        <MetricCard title="NIS Diizinkan" value={metrics.allowedNis} subtitle="Whitelist Terdaftar" icon={<BadgeIcon />} />
+        <MetricCard title="Kelola Siswa" value={metrics.allowedNis} subtitle="Whitelist Signup" icon={<KeyOutlinedIcon />} />
+        <MetricCard title="Akun Siswa" value={metrics.students} subtitle="Sudah Terdaftar" icon={<SchoolIcon />} />
         <MetricCard title="Log Aktivitas" value={metrics.logs} subtitle="24 Jam Terakhir" icon={<HistoryIcon />} />
       </Box>
 
@@ -188,9 +188,9 @@ export function AdminItDashboardPanel() {
             />
             <QuickActionItem
               icon={<FileUploadIcon fontSize="small" />}
-              title="Impor NIS Massal"
-              subtitle="Upload CSV/XLSX file NIS"
-              onClick={() => router.navigate({ to: '/admin/nis' })}
+              title="Import Data Siswa"
+              subtitle="Upload CSV/XLSX ke Kelola Siswa"
+              onClick={() => router.navigate({ to: '/admin/students' })}
             />
             <QuickActionItem
               icon={<DescriptionIcon fontSize="small" />}
@@ -200,8 +200,8 @@ export function AdminItDashboardPanel() {
             />
             <QuickActionItem
               icon={<DeleteSweepIcon fontSize="small" />}
-              title="Kelola Akun Siswa"
-              subtitle="Reset password siswa lupa"
+              title="Kelola Siswa"
+              subtitle="Whitelist signup dan reset akun"
               onClick={() => router.navigate({ to: '/admin/students' })}
             />
           </List>

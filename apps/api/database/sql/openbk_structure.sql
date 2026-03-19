@@ -137,14 +137,17 @@ CREATE TABLE `admins` (
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
   `role` enum('admin','guru_bk') NOT NULL DEFAULT 'guru_bk',
-  `email` varchar(255) DEFAULT NULL,
-  `otp_code` varchar(255) DEFAULT NULL,
-  `otp_expires_at` timestamp NULL DEFAULT NULL,
+  `nip` varchar(30) DEFAULT NULL,
+  `full_name` varchar(150) DEFAULT NULL,
+  `login_challenge_hash` varchar(255) DEFAULT NULL,
+  `login_challenge_expires_at` timestamp NULL DEFAULT NULL,
+  `login_token_hash` varchar(255) DEFAULT NULL,
+  `login_token_expires_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `admins_username_unique` (`username`),
-  UNIQUE KEY `admins_email_unique` (`email`)
+  UNIQUE KEY `admins_nip_unique` (`nip`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `students` (

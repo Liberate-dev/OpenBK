@@ -11,16 +11,21 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SendLetterRouteImport } from './routes/send-letter'
 import { Route as MyLettersRouteImport } from './routes/my-letters'
+import { Route as LaporRouteImport } from './routes/lapor'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminStudentsRouteImport } from './routes/admin.students'
+import { Route as AdminStudentProfilesRouteImport } from './routes/admin.student-profiles'
+import { Route as AdminRepositoryRouteImport } from './routes/admin.repository'
+import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminNisRouteImport } from './routes/admin.nis'
 import { Route as AdminLogsRouteImport } from './routes/admin.logs'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminKamusRouteImport } from './routes/admin.kamus'
 import { Route as AdminInboxRouteImport } from './routes/admin.inbox'
+import { Route as AdminCounselingRouteImport } from './routes/admin.counseling'
 
 const SendLetterRoute = SendLetterRouteImport.update({
   id: '/send-letter',
@@ -30,6 +35,11 @@ const SendLetterRoute = SendLetterRouteImport.update({
 const MyLettersRoute = MyLettersRouteImport.update({
   id: '/my-letters',
   path: '/my-letters',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LaporRoute = LaporRouteImport.update({
+  id: '/lapor',
+  path: '/lapor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -57,6 +67,21 @@ const AdminStudentsRoute = AdminStudentsRouteImport.update({
   path: '/students',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminStudentProfilesRoute = AdminStudentProfilesRouteImport.update({
+  id: '/student-profiles',
+  path: '/student-profiles',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRepositoryRoute = AdminRepositoryRouteImport.update({
+  id: '/repository',
+  path: '/repository',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminNisRoute = AdminNisRouteImport.update({
   id: '/nis',
   path: '/nis',
@@ -82,30 +107,45 @@ const AdminInboxRoute = AdminInboxRouteImport.update({
   path: '/inbox',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCounselingRoute = AdminCounselingRouteImport.update({
+  id: '/counseling',
+  path: '/counseling',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/lapor': typeof LaporRoute
   '/my-letters': typeof MyLettersRoute
   '/send-letter': typeof SendLetterRoute
+  '/admin/counseling': typeof AdminCounselingRoute
   '/admin/inbox': typeof AdminInboxRoute
   '/admin/kamus': typeof AdminKamusRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/nis': typeof AdminNisRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/repository': typeof AdminRepositoryRoute
+  '/admin/student-profiles': typeof AdminStudentProfilesRoute
   '/admin/students': typeof AdminStudentsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/lapor': typeof LaporRoute
   '/my-letters': typeof MyLettersRoute
   '/send-letter': typeof SendLetterRoute
+  '/admin/counseling': typeof AdminCounselingRoute
   '/admin/inbox': typeof AdminInboxRoute
   '/admin/kamus': typeof AdminKamusRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/nis': typeof AdminNisRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/repository': typeof AdminRepositoryRoute
+  '/admin/student-profiles': typeof AdminStudentProfilesRoute
   '/admin/students': typeof AdminStudentsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin': typeof AdminIndexRoute
@@ -114,13 +154,18 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/lapor': typeof LaporRoute
   '/my-letters': typeof MyLettersRoute
   '/send-letter': typeof SendLetterRoute
+  '/admin/counseling': typeof AdminCounselingRoute
   '/admin/inbox': typeof AdminInboxRoute
   '/admin/kamus': typeof AdminKamusRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/logs': typeof AdminLogsRoute
   '/admin/nis': typeof AdminNisRoute
+  '/admin/reports': typeof AdminReportsRoute
+  '/admin/repository': typeof AdminRepositoryRoute
+  '/admin/student-profiles': typeof AdminStudentProfilesRoute
   '/admin/students': typeof AdminStudentsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
@@ -130,26 +175,36 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/lapor'
     | '/my-letters'
     | '/send-letter'
+    | '/admin/counseling'
     | '/admin/inbox'
     | '/admin/kamus'
     | '/admin/login'
     | '/admin/logs'
     | '/admin/nis'
+    | '/admin/reports'
+    | '/admin/repository'
+    | '/admin/student-profiles'
     | '/admin/students'
     | '/admin/users'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/lapor'
     | '/my-letters'
     | '/send-letter'
+    | '/admin/counseling'
     | '/admin/inbox'
     | '/admin/kamus'
     | '/admin/login'
     | '/admin/logs'
     | '/admin/nis'
+    | '/admin/reports'
+    | '/admin/repository'
+    | '/admin/student-profiles'
     | '/admin/students'
     | '/admin/users'
     | '/admin'
@@ -157,13 +212,18 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/lapor'
     | '/my-letters'
     | '/send-letter'
+    | '/admin/counseling'
     | '/admin/inbox'
     | '/admin/kamus'
     | '/admin/login'
     | '/admin/logs'
     | '/admin/nis'
+    | '/admin/reports'
+    | '/admin/repository'
+    | '/admin/student-profiles'
     | '/admin/students'
     | '/admin/users'
     | '/admin/'
@@ -172,6 +232,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  LaporRoute: typeof LaporRoute
   MyLettersRoute: typeof MyLettersRoute
   SendLetterRoute: typeof SendLetterRoute
 }
@@ -190,6 +251,13 @@ declare module '@tanstack/react-router' {
       path: '/my-letters'
       fullPath: '/my-letters'
       preLoaderRoute: typeof MyLettersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lapor': {
+      id: '/lapor'
+      path: '/lapor'
+      fullPath: '/lapor'
+      preLoaderRoute: typeof LaporRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -227,6 +295,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminStudentsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/student-profiles': {
+      id: '/admin/student-profiles'
+      path: '/student-profiles'
+      fullPath: '/admin/student-profiles'
+      preLoaderRoute: typeof AdminStudentProfilesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/repository': {
+      id: '/admin/repository'
+      path: '/repository'
+      fullPath: '/admin/repository'
+      preLoaderRoute: typeof AdminRepositoryRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/nis': {
       id: '/admin/nis'
       path: '/nis'
@@ -262,26 +351,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInboxRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/counseling': {
+      id: '/admin/counseling'
+      path: '/counseling'
+      fullPath: '/admin/counseling'
+      preLoaderRoute: typeof AdminCounselingRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminCounselingRoute: typeof AdminCounselingRoute
   AdminInboxRoute: typeof AdminInboxRoute
   AdminKamusRoute: typeof AdminKamusRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminLogsRoute: typeof AdminLogsRoute
   AdminNisRoute: typeof AdminNisRoute
+  AdminReportsRoute: typeof AdminReportsRoute
+  AdminRepositoryRoute: typeof AdminRepositoryRoute
+  AdminStudentProfilesRoute: typeof AdminStudentProfilesRoute
   AdminStudentsRoute: typeof AdminStudentsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminCounselingRoute: AdminCounselingRoute,
   AdminInboxRoute: AdminInboxRoute,
   AdminKamusRoute: AdminKamusRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminLogsRoute: AdminLogsRoute,
   AdminNisRoute: AdminNisRoute,
+  AdminReportsRoute: AdminReportsRoute,
+  AdminRepositoryRoute: AdminRepositoryRoute,
+  AdminStudentProfilesRoute: AdminStudentProfilesRoute,
   AdminStudentsRoute: AdminStudentsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
@@ -292,6 +396,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  LaporRoute: LaporRoute,
   MyLettersRoute: MyLettersRoute,
   SendLetterRoute: SendLetterRoute,
 }

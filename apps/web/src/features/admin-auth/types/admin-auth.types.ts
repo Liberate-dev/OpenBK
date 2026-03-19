@@ -1,17 +1,16 @@
 export interface AdminLoginPayload {
     username: string;
-    password?: string;
-    otp_code?: string;
-    otp_id?: number;
+    password: string;
 }
 
 export interface AdminLoginResult {
     success: boolean;
     token?: string;
     username?: string;
-    role?: 'admin' | 'guru_bk';
+    role?: 'admin' | 'guru_bk' | 'kepala_sekolah';
     message?: string;
-    // 2FA fields
-    requires_2fa?: boolean;
-    otp_id?: number;
+    requires_token?: boolean;
+    challenge_id?: number;
+    challenge_token?: string;
+    generated_token?: string;
 }

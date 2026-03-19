@@ -16,6 +16,8 @@ class AdminSeeder extends Seeder
                 'password' => Hash::make('rahasiabk'),
                 'role' => 'admin',
                 'email' => null,
+                'nip' => '198001012005011001',
+                'full_name' => 'Admin IT Open BK',
             ]
         );
 
@@ -24,7 +26,9 @@ class AdminSeeder extends Seeder
             [
                 'password' => Hash::make('gurubk123'),
                 'role' => 'guru_bk',
-                'email' => 'guru_bk@example.com',
+                'email' => null,
+                'nip' => '198502142010012003',
+                'full_name' => 'Guru BK Open BK',
             ]
         );
     }

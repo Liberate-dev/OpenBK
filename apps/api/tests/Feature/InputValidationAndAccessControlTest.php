@@ -63,7 +63,8 @@ class InputValidationAndAccessControlTest extends TestCase
             'username' => 'admin_it',
             'password' => Hash::make('secret123'),
             'role' => 'admin',
-            'email' => 'admin@example.com',
+            'nip' => '1987654321',
+            'full_name' => 'Admin IT',
         ]);
 
         Sanctum::actingAs($admin);
@@ -81,7 +82,8 @@ class InputValidationAndAccessControlTest extends TestCase
             'username' => 'admin_it',
             'password' => Hash::make('secret123'),
             'role' => 'admin',
-            'email' => 'admin@example.com',
+            'nip' => '1987654321',
+            'full_name' => 'Admin IT',
         ]);
 
         Sanctum::actingAs($admin);

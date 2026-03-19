@@ -1,3 +1,6 @@
+import { adminAuthService } from "~lib/adminAuth";
+import { authService } from "~lib/auth";
+
 export async function apiClient<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -11,32 +14,9 @@ export async function apiClient<T>(
         defaultHeaders["Content-Type"] = "application/json";
     }
 
-    // If it's a student route, use student token.
-    // If it's an admin route, use admin token.
-    let token = null;
-
-    // We can import services conditionally or use a simple regex approach based on the URL.
-    if (endpoint.startsWith("/admin/")) {
-        const adminSessionStr = localStorage.getItem("openbk_admin_session");
-        if (adminSessionStr) {
-            try {
-                const adminSession = JSON.parse(adminSessionStr);
-                token = adminSession.token;
-            } catch {
-                token = null;
-            }
-        }
-    } else {
-        const studentSessionStr = localStorage.getItem("openbk_student_session");
-        if (studentSessionStr) {
-            try {
-                const studentSession = JSON.parse(studentSessionStr);
-                token = studentSession.token;
-            } catch {
-                token = null;
-            }
-        }
-    }
+    const token = endpoint.startsWith("/admin/")
+        ? adminAuthService.getSession()?.token ?? null
+        : authService.getSession()?.token ?? null;
 
     if (token) {
         defaultHeaders["Authorization"] = `Bearer ${token}`;

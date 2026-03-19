@@ -9,12 +9,24 @@ class Admin extends Model
 {
     use HasApiTokens;
 
-    protected $fillable = ['username', 'password', 'role', 'email', 'otp_code', 'otp_expires_at'];
+    protected $fillable = [
+        'username',
+        'password',
+        'role',
+        'email',
+        'nip',
+        'full_name',
+        'login_challenge_hash',
+        'login_challenge_expires_at',
+        'login_token_hash',
+        'login_token_expires_at',
+    ];
 
-    protected $hidden = ['password', 'otp_code'];
+    protected $hidden = ['password', 'login_challenge_hash', 'login_token_hash'];
 
     protected $casts = [
-        'otp_expires_at' => 'datetime',
+        'login_challenge_expires_at' => 'datetime',
+        'login_token_expires_at' => 'datetime',
     ];
 
     public function isAdmin(): bool
@@ -25,5 +37,15 @@ class Admin extends Model
     public function isGuruBK(): bool
     {
         return $this->role === 'guru_bk';
+    }
+
+    public function isKepalaSekolah(): bool
+    {
+        return $this->role === 'kepala_sekolah';
+    }
+
+    public function canAccessReports(): bool
+    {
+        return $this->isGuruBK() || $this->isKepalaSekolah();
     }
 }

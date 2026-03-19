@@ -22,6 +22,10 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import GroupsIcon from '@mui/icons-material/Groups';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 import { useRouter } from '@tanstack/react-router';
 import { useAdminInbox } from '~features/admin-inbox/hooks/useAdminInbox';
 import type { RiskLevel } from '~features/admin-inbox/types/admin-inbox.types';
@@ -154,6 +158,30 @@ export function AdminDashboardPanel() {
               title="Tinjau Kasus Mendesak"
               subtitle="Fokus high/critical"
               onClick={() => router.navigate({ to: '/admin/inbox' })}
+            />
+            <QuickActionItem
+              icon={<GroupsIcon fontSize="small" />}
+              title="Lihat Data Siswa"
+              subtitle="Profil dan karakter siswa"
+              onClick={() => router.navigate({ to: '/admin/student-profiles' })}
+            />
+            <QuickActionItem
+              icon={<AssignmentTurnedInIcon fontSize="small" />}
+              title="Catat Konseling"
+              subtitle="Input sesi konseling baru"
+              onClick={() => router.navigate({ to: '/admin/counseling' })}
+            />
+            <QuickActionItem
+              icon={<AssessmentIcon fontSize="small" />}
+              title="Buka Laporan"
+              subtitle="Mingguan sampai tahunan"
+              onClick={() => router.navigate({ to: '/admin/reports' })}
+            />
+            <QuickActionItem
+              icon={<LibraryBooksIcon fontSize="small" />}
+              title="Buka Repository"
+              subtitle="Modul dan referensi BK"
+              onClick={() => router.navigate({ to: '/admin/repository' })}
             />
             <QuickActionItem
               icon={<MenuBookIcon fontSize="small" />}

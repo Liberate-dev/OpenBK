@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\Admin;
 use App\Models\Student;
+use App\Models\StudentPasswordResetRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -21,7 +23,7 @@ class AdminManagementController extends Controller
             return response()->json(['message' => 'Unauthorized. Admin only.'], 403);
         }
 
-        $users = Admin::select('id', 'username', 'role', 'email', 'created_at')
+        $users = Admin::select('id', 'username', 'role', 'nip', 'full_name', 'created_at')
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -37,23 +39,24 @@ class AdminManagementController extends Controller
 
         $request->merge([
             'username' => trim((string) $request->input('username')),
-            'email' => $request->has('email')
-                ? trim((string) $request->input('email'))
-                : null,
+            'nip' => trim((string) $request->input('nip')),
+            'full_name' => trim((string) $request->input('full_name')),
         ]);
 
         $validated = $request->validate([
             'username' => ['bail', 'required', 'string', 'min:3', 'max:50', 'regex:/^[A-Za-z0-9_.-]+$/', 'unique:admins,username'],
             'password' => ['required', 'string', 'min:6', 'max:255'],
-            'role' => ['required', Rule::in(['admin', 'guru_bk'])],
-            'email' => ['nullable', 'email:rfc', 'max:255'],
+            'role' => ['required', Rule::in(['admin', 'guru_bk', 'kepala_sekolah'])],
+            'nip' => ['required', 'string', 'regex:/^\d{5,30}$/', 'unique:admins,nip'],
+            'full_name' => ['required', 'string', 'min:3', 'max:150'],
         ]);
 
         $admin = Admin::create([
             'username' => $validated['username'],
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
-            'email' => $validated['email'] ?? null,
+            'nip' => $validated['nip'],
+            'full_name' => $validated['full_name'],
         ]);
 
         ActivityLog::log('create_user', "Created user {$admin->username} ({$admin->role})", $currentAdmin->id, $request->ip());
@@ -64,7 +67,8 @@ class AdminManagementController extends Controller
                 'id' => $admin->id,
                 'username' => $admin->username,
                 'role' => $admin->role,
-                'email' => $admin->email,
+                'nip' => $admin->nip,
+                'full_name' => $admin->full_name,
             ],
         ], 201);
     }
@@ -78,14 +82,23 @@ class AdminManagementController extends Controller
 
         $admin = Admin::findOrFail($id);
 
-        $request->merge([
-            'username' => $request->has('username')
-                ? trim((string) $request->input('username'))
-                : $request->input('username'),
-            'email' => $request->has('email')
-                ? trim((string) $request->input('email'))
-                : $request->input('email'),
-        ]);
+        $normalizedInput = [];
+
+        if ($request->has('username')) {
+            $normalizedInput['username'] = trim((string) $request->input('username'));
+        }
+
+        if ($request->has('nip')) {
+            $normalizedInput['nip'] = trim((string) $request->input('nip'));
+        }
+
+        if ($request->has('full_name')) {
+            $normalizedInput['full_name'] = trim((string) $request->input('full_name'));
+        }
+
+        if ($normalizedInput !== []) {
+            $request->merge($normalizedInput);
+        }
 
         $validated = $request->validate([
             'username' => [
@@ -98,8 +111,9 @@ class AdminManagementController extends Controller
                 Rule::unique('admins', 'username')->ignore($id),
             ],
             'password' => ['sometimes', 'filled', 'string', 'min:6', 'max:255'],
-            'role' => ['sometimes', Rule::in(['admin', 'guru_bk'])],
-            'email' => ['sometimes', 'nullable', 'email:rfc', 'max:255'],
+            'role' => ['sometimes', Rule::in(['admin', 'guru_bk', 'kepala_sekolah'])],
+            'nip' => ['sometimes', 'filled', 'string', 'regex:/^\d{5,30}$/', Rule::unique('admins', 'nip')->ignore($id)],
+            'full_name' => ['sometimes', 'filled', 'string', 'min:3', 'max:150'],
         ]);
 
         if (array_key_exists('username', $validated)) {
@@ -111,8 +125,11 @@ class AdminManagementController extends Controller
         if (array_key_exists('role', $validated)) {
             $admin->role = $validated['role'];
         }
-        if (array_key_exists('email', $validated)) {
-            $admin->email = $validated['email'] ?: null;
+        if (array_key_exists('nip', $validated)) {
+            $admin->nip = $validated['nip'];
+        }
+        if (array_key_exists('full_name', $validated)) {
+            $admin->full_name = $validated['full_name'];
         }
 
         $admin->save();
@@ -125,7 +142,8 @@ class AdminManagementController extends Controller
                 'id' => $admin->id,
                 'username' => $admin->username,
                 'role' => $admin->role,
-                'email' => $admin->email,
+                'nip' => $admin->nip,
+                'full_name' => $admin->full_name,
             ],
         ]);
     }
@@ -183,6 +201,11 @@ class AdminManagementController extends Controller
         $students = Student::query()
             ->withCount('messages')
             ->withMax('messages', 'created_at')
+            ->with([
+                'passwordResetRequests' => fn ($query) => $query
+                    ->where('status', 'pending')
+                    ->orderByDesc('created_at'),
+            ])
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(fn (Student $student) => [
@@ -194,11 +217,35 @@ class AdminManagementController extends Controller
                 'createdAt' => $student->created_at?->toISOString(),
                 'updatedAt' => $student->updated_at?->toISOString(),
                 'lastMessageAt' => $student->messages_max_created_at
-                    ? \Illuminate\Support\Carbon::parse($student->messages_max_created_at)->toISOString()
+                    ? Carbon::parse($student->messages_max_created_at)->toISOString()
                     : null,
+                'pendingResetRequestedAt' => $student->passwordResetRequests->first()?->created_at?->toISOString(),
             ]);
 
         return response()->json($students);
+    }
+
+    public function resetRequests(Request $request): JsonResponse
+    {
+        $currentAdmin = $request->user();
+        if (! $currentAdmin instanceof Admin || ! $currentAdmin->isAdmin()) {
+            return response()->json(['message' => 'Unauthorized. Admin only.'], 403);
+        }
+
+        $requests = StudentPasswordResetRequest::query()
+            ->where('status', 'pending')
+            ->with('student:id,nis')
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(fn (StudentPasswordResetRequest $resetRequest) => [
+                'id' => $resetRequest->id,
+                'nis' => $resetRequest->nis,
+                'studentId' => $resetRequest->student_id,
+                'requestedAt' => $resetRequest->created_at?->toISOString(),
+                'updatedAt' => $resetRequest->updated_at?->toISOString(),
+            ]);
+
+        return response()->json($requests);
     }
 
     public function resetStudentPassword(Request $request, int $id): JsonResponse
@@ -215,6 +262,18 @@ class AdminManagementController extends Controller
 
         // Invalidate all active student sessions after forced reset.
         $student->tokens()->delete();
+
+        StudentPasswordResetRequest::query()
+            ->where('status', 'pending')
+            ->where(function ($query) use ($student) {
+                $query->where('student_id', $student->id)
+                    ->orWhere('nis', $student->nis);
+            })
+            ->update([
+                'status' => 'completed',
+                'resolved_by_admin_id' => $currentAdmin->id,
+                'resolved_at' => now(),
+            ]);
 
         ActivityLog::log(
             'reset_student_password',

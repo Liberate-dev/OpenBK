@@ -2,6 +2,7 @@ import { FormEvent, useState } from "react";
 import { Alert, Button, Paper, Stack, TextField, Typography, Box, Tabs, Tab } from "@mui/material";
 import { useLoginNis } from "~features/nis-gate/hooks/useLoginNis";
 import { useRegisterNis } from "~features/nis-gate/hooks/useRegisterNis";
+import { useRequestPasswordReset } from "~features/nis-gate/hooks/useRequestPasswordReset";
 import { authService } from "~lib/auth";
 import { useRouter } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,6 +17,7 @@ export function NisGateForm() {
 
   const loginMutation = useLoginNis();
   const registerMutation = useRegisterNis();
+  const passwordResetRequestMutation = useRequestPasswordReset();
   const router = useRouter();
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -23,6 +25,18 @@ export function NisGateForm() {
     setLocalError("");
     loginMutation.reset();
     registerMutation.reset();
+    passwordResetRequestMutation.reset();
+  };
+
+  const handleForgotPassword = () => {
+    setLocalError("");
+
+    if (nis.trim().length < 4) {
+      setLocalError("Isi NIS dulu sebelum mengirim request reset password.");
+      return;
+    }
+
+    passwordResetRequestMutation.mutate(nis.trim());
   };
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -130,6 +144,20 @@ export function NisGateForm() {
                     required
                     fullWidth
                   />
+                  {tab === 0 && (
+                    <Box sx={{ display: "flex", justifyContent: "flex-end", mt: -1 }}>
+                      <Button
+                        type="button"
+                        variant="text"
+                        size="small"
+                        onClick={handleForgotPassword}
+                        disabled={passwordResetRequestMutation.isPending}
+                        sx={{ textTransform: "none", fontWeight: 700 }}
+                      >
+                        {passwordResetRequestMutation.isPending ? "Mengirim request..." : "Lupa password?"}
+                      </Button>
+                    </Box>
+                  )}
                   {tab === 1 && (
                     <TextField
                       type="password"
@@ -166,9 +194,15 @@ export function NisGateForm() {
               </Alert>
             )}
 
-            {(loginMutation.error || registerMutation.error) && (
+            {passwordResetRequestMutation.data && (
+              <Alert severity={passwordResetRequestMutation.data.success ? "success" : "warning"} sx={{ borderRadius: 2 }}>
+                {passwordResetRequestMutation.data.message}
+              </Alert>
+            )}
+
+            {(loginMutation.error || registerMutation.error || passwordResetRequestMutation.error) && (
               <Alert severity="error" sx={{ borderRadius: 2 }}>
-                {loginMutation.error?.message || registerMutation.error?.message || "Terjadi kesalahan pada server."}
+                {passwordResetRequestMutation.error?.message || loginMutation.error?.message || registerMutation.error?.message || "Terjadi kesalahan pada server."}
               </Alert>
             )}
           </Stack>

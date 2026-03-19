@@ -12,9 +12,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import { apiClient } from '~lib/apiClient';
 import { useAdminLayoutFilters } from '~features/admin-layout/adminLayoutFilters';
+import { requireGuruBkRole } from '~lib/adminGuards';
 import { getErrorMessage } from '~lib/error';
 
 export const Route = createFileRoute('/admin/kamus')({
+    beforeLoad: () => {
+        requireGuruBkRole();
+    },
     component: KamusManagement,
 });
 

@@ -35,8 +35,8 @@ const ACTION_COLORS: Record<string, { bg: string; color: string }> = {
   create_user: { bg: '#dcfce7', color: '#16a34a' },
   update_user: { bg: '#fef9c3', color: '#a16207' },
   delete_user: { bg: '#fee2e2', color: '#dc2626' },
-  otp_sent: { bg: '#e0f2fe', color: '#0284c7' },
-  otp_verified: { bg: '#dcfce7', color: '#16a34a' },
+  token_generated: { bg: '#e0f2fe', color: '#0284c7' },
+  token_verified: { bg: '#dcfce7', color: '#16a34a' },
   reset_student_password: { bg: '#fee2e2', color: '#991b1b' },
 };
 
@@ -47,8 +47,8 @@ const ACTION_LABELS: Record<string, string> = {
   create_user: 'Tambah User',
   update_user: 'Edit User',
   delete_user: 'Hapus User',
-  otp_sent: 'OTP Terkirim',
-  otp_verified: 'OTP Terverifikasi',
+  token_generated: 'Token Dibuat',
+  token_verified: 'Token Diverifikasi',
   reset_student_password: 'Reset Password Siswa',
 };
 

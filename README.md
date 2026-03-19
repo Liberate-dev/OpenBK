@@ -30,7 +30,7 @@ Open BK adalah aplikasi layanan BK sekolah dengan 2 sisi utama:
 
 ### Keamanan dan Validasi
 - Auth token menggunakan Laravel Sanctum.
-- Validasi input ketat untuk field penting (NIS, username, OTP, message body, dll).
+- Validasi input ketat untuk field penting (NIS, username, token login admin, message body, dll).
 - Pembatasan role di endpoint (student vs admin/guru BK vs admin IT).
 - Constraint route parameter (`id` numerik, `referenceId` tervalidasi).
 - Query menggunakan Eloquent/query builder (tanpa interpolasi user input ke raw SQL).
@@ -49,15 +49,18 @@ Open BK adalah aplikasi layanan BK sekolah dengan 2 sisi utama:
 
 ### 2) Flow Guru BK
 1. Guru BK login di `/admin/login`.
-2. Jika akun punya email, proses OTP 2FA aktif.
-3. Setelah login, masuk ke `/admin`.
-4. Guru BK buka `/admin/inbox` untuk triase surat berdasarkan risiko.
+2. Setelah username dan password valid, generate token login memakai NIP dan nama lengkap.
+3. Masukkan token login yang berlaku 5 menit.
+4. Setelah login, masuk ke `/admin`.
+5. Guru BK buka `/admin/inbox` untuk triase surat berdasarkan risiko.
 5. Guru BK baca detail surat dan kirim balasan.
 
 ### 3) Flow Admin IT
-1. Admin IT login di `/admin/login` (dengan/atau tanpa OTP tergantung konfigurasi email).
-2. Admin masuk ke dashboard `/admin`.
-3. Admin mengelola pengguna, siswa, NIS whitelist, log, dan kamus risiko.
+1. Admin IT login di `/admin/login`.
+2. Setelah username dan password valid, generate token login memakai NIP dan nama lengkap.
+3. Masukkan token login yang berlaku 5 menit.
+4. Admin masuk ke dashboard `/admin`.
+5. Admin mengelola pengguna, siswa, NIS whitelist, log, dan kamus risiko.
 4. Admin dapat melakukan reset password siswa (siswa wajib signup ulang).
 
 ## Tech Stack
@@ -91,6 +94,40 @@ Open BK/
 │  └─ api/      # Backend Laravel API
 ├─ reports/
 └─ plan.md
+```
+
+## Setup Docker
+
+Prasyarat:
+- Docker Desktop / Docker Engine
+- Docker Compose v2
+
+Jalankan dari root project:
+
+```bash
+docker compose up --build
+```
+
+Akses service:
+- Frontend + reverse proxy: `http://localhost:8080`
+- Backend API langsung: `http://localhost:8000`
+- MySQL host port: `127.0.0.1:3307`
+
+Catatan:
+- Compose akan menjalankan `migrate` dan `db:seed` otomatis saat backend start.
+- Frontend container sudah me-route `/api/*` ke service Laravel.
+- Data MySQL disimpan di volume Docker `mysql_data`.
+
+Stop service:
+
+```bash
+docker compose down
+```
+
+Hapus service beserta volume database:
+
+```bash
+docker compose down -v
 ```
 
 ## Setup Lokal
@@ -145,7 +182,7 @@ DB_USERNAME=root
 DB_PASSWORD=your_password
 ```
 
-Tambahkan konfigurasi Mailtrap (SMTP) di `.env` backend:
+Konfigurasi Mailtrap (SMTP) tidak diperlukan untuk login admin saat ini.
 
 ```env
 MAIL_MAILER=smtp
@@ -168,7 +205,6 @@ Seed data awal:
 
 ```bash
 php artisan db:seed
-php artisan db:seed --class=RiskDictionarySeeder
 ```
 
 Jalankan backend:
@@ -212,9 +248,13 @@ Data dari seeder:
 - Admin IT
   - username: `admin`
   - password: `rahasiabk`
+  - NIP: `198001012005011001`
+  - nama lengkap: `Admin IT Open BK`
 - Guru BK
   - username: `guru_bk`
   - password: `gurubk123`
+  - NIP: `198502142010012003`
+  - nama lengkap: `Guru BK Open BK`
 
 Contoh whitelist NIS awal:
 - `123456`, `654321`, `111111`, `222222`, `333333`
@@ -328,7 +368,7 @@ Set `.env` production API:
 - `APP_DEBUG=false`
 - `APP_URL=https://api.bk.sekolah.sch.id`
 - DB sesuai server.
-- MAIL untuk Mailtrap (contoh):
+- MAIL opsional dan tidak dipakai untuk login admin:
   - `MAIL_MAILER=smtp`
   - `MAIL_HOST=sandbox.smtp.mailtrap.io`
   - `MAIL_PORT=2525`
@@ -374,11 +414,11 @@ Setelah DNS aktif, jalankan certbot:
 sudo certbot --nginx -d bk.sekolah.sch.id -d api.bk.sekolah.sch.id
 ```
 
-## 4) Setup Mailtrap (Post-Deploy)
+## 4) Catatan Deploy Login Admin
 
-### A. Konfigurasi di Dashboard Mailtrap
+### A. Data admin yang wajib tersedia
 
-1. Login ke Mailtrap.
+1. Pastikan setiap akun admin memiliki `username`, `password`, `nip`, dan `full_name`.
 2. Buat/buka **Project** untuk Open BK.
 3. Buka menu **Email Testing** lalu pilih inbox yang ingin dipakai.
 4. Buka tab **SMTP Settings / Integrations**.
@@ -390,7 +430,7 @@ sudo certbot --nginx -d bk.sekolah.sch.id -d api.bk.sekolah.sch.id
 
 ### B. Mapping ke `.env` Open BK
 
-Isi `.env` backend (`apps/api/.env`) dengan kredensial dari Mailtrap:
+Jika Anda tetap memakai email untuk fitur lain, isi `.env` backend (`apps/api/.env`) sesuai kebutuhan layanan email Anda:
 
 ```env
 MAIL_MAILER=smtp
@@ -404,7 +444,7 @@ MAIL_FROM_NAME="Open BK"
 ```
 
 Catatan:
-- Untuk aplikasi ini, yang dipakai adalah **SMTP credential** Mailtrap (`MAIL_USERNAME` dan `MAIL_PASSWORD`), bukan endpoint HTTP Mailtrap API.
+- Flow login admin tidak lagi memakai OTP email atau Mailtrap.
 - Simpan credential hanya di `.env`, jangan commit ke repository.
 
 ### C. Terapkan dan Verifikasi
@@ -413,8 +453,8 @@ Catatan:
    - `sudo systemctl reload php8.2-fpm`
 2. Reload Nginx:
    - `sudo systemctl reload nginx`
-3. Uji kirim OTP dari halaman login admin.
-4. Cek inbox Mailtrap, pastikan email OTP masuk.
+3. Uji flow token login admin dari halaman login.
+4. Pastikan token bisa diverifikasi dan dashboard terbuka.
 
 ## 5) Deploy Update Rutin
 
@@ -434,15 +474,15 @@ Contoh urutan update:
 ## Troubleshooting
 
 ### 422 Validation Error
-- Cek payload JSON dan pastikan field sesuai (misalnya NIS wajib digit, OTP 6 digit).
+- Cek payload JSON dan pastikan field sesuai (misalnya NIS wajib digit, token login admin 6 digit).
 
 ### Frontend tidak bisa hit API di production
 - Pastikan block `location /api/` di Nginx frontend sudah benar.
 - Pastikan API subdomain bisa diakses dan SSL valid.
 
-### OTP email tidak terkirim
-- Cek konfigurasi `MAIL_*` di `.env` backend.
-- Cek log Laravel: `storage/logs/laravel.log`.
+### Token login admin gagal dibuat
+- Pastikan data `nip` dan `full_name` admin sudah benar.
+- Pastikan challenge login belum lewat 5 menit.
 
 ### Feature test banyak skip
 - Aktifkan extension `pdo_sqlite`, atau siapkan konfigurasi test DB MySQL terpisah.

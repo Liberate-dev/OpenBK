@@ -8,5 +8,5 @@ class AllowedNis extends Model
 {
     protected $table = 'allowed_nis';
 
-    protected $fillable = ['nis', 'name'];
+    protected $fillable = ['nis', 'name', 'class_name', 'profile_summary', 'character_notes'];
 }

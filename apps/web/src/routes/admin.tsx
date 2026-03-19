@@ -42,6 +42,10 @@ import SchoolIcon from '@mui/icons-material/School';
 import SettingsIcon from '@mui/icons-material/Settings';
 import SearchIcon from '@mui/icons-material/Search';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import GroupsIcon from '@mui/icons-material/Groups';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AdminLayoutFiltersProvider } from '~features/admin-layout/adminLayoutFilters';
 import { apiClient } from '~lib/apiClient';
@@ -57,11 +61,11 @@ interface UiSettings {
     notificationIntervalSec: number;
 }
 
-interface StudentNotificationSource {
+interface PasswordResetRequestNotificationSource {
     id: number;
     nis: string;
-    status: 'active' | 'reset_required';
-    createdAt: string | null;
+    studentId: number | null;
+    requestedAt: string | null;
     updatedAt: string | null;
 }
 
@@ -154,7 +158,7 @@ function AdminLayout() {
         router.navigate({ to: '/admin/login' });
     };
 
-    const navigateTo = (to: '/admin' | '/admin/inbox' | '/admin/kamus' | '/admin/users' | '/admin/logs' | '/admin/nis' | '/admin/students') => {
+    const navigateTo = (to: '/admin' | '/admin/inbox' | '/admin/kamus' | '/admin/users' | '/admin/logs' | '/admin/students' | '/admin/repository' | '/admin/student-profiles' | '/admin/counseling' | '/admin/reports') => {
         router.navigate({ to });
         setMobileOpen(false);
     };
@@ -168,14 +172,13 @@ function AdminLayout() {
 
         try {
             setNotificationsLoading(true);
-            const students = await apiClient<StudentNotificationSource[]>('/admin/students');
-            const nextNotifications = students
-                .filter((student) => student.status === 'reset_required')
-                .map((student) => ({
-                    id: `reset-${student.id}`,
-                    title: `Permintaan reset password NIS ${student.nis}`,
-                    description: 'Siswa perlu reset password. Cek menu Akun Siswa.',
-                    createdAt: student.updatedAt || student.createdAt || new Date().toISOString(),
+            const requests = await apiClient<PasswordResetRequestNotificationSource[]>('/admin/student-reset-requests');
+            const nextNotifications = requests
+                .map((resetRequest) => ({
+                    id: `reset-request-${resetRequest.id}`,
+                    title: `Permintaan reset password NIS ${resetRequest.nis}`,
+                    description: 'Siswa meminta reset password. Buka Kelola Siswa untuk memprosesnya.',
+                    createdAt: resetRequest.requestedAt || resetRequest.updatedAt || new Date().toISOString(),
                 }))
                 .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
 
@@ -259,16 +262,21 @@ function AdminLayout() {
     }
 
     const navButtonSx = (path: string) => ({
-        borderRadius: 1.25,
+        borderRadius: 2,
         px: 2,
-        py: 1.25,
-        mb: 0.5,
-        bgcolor: isActive(path) ? '#2563eb' : 'transparent',
+        py: 1.35,
+        mb: 0.65,
+        border: '1px solid',
+        borderColor: isActive(path) ? 'rgba(96, 165, 250, 0.46)' : 'transparent',
+        bgcolor: isActive(path) ? 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)' : 'transparent',
+        background: isActive(path) ? 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)' : 'transparent',
         color: isActive(path) ? '#ffffff' : '#475569',
         '&:hover': {
-            bgcolor: isActive(path) ? '#2563eb' : '#eef2ff',
+            bgcolor: isActive(path) ? '#2563eb' : '#f8fbff',
             color: isActive(path) ? '#ffffff' : '#1e293b',
+            borderColor: isActive(path) ? 'rgba(96, 165, 250, 0.46)' : '#dbeafe',
         },
+        boxShadow: isActive(path) ? '0 16px 28px rgba(37, 99, 235, 0.2)' : 'none',
         transition: 'all 0.2s ease',
     });
 
@@ -276,22 +284,40 @@ function AdminLayout() {
         ? [
             { to: '/admin' as const, label: 'Dashboard', icon: <DashboardIcon fontSize="small" /> },
             { to: '/admin/users' as const, label: 'Kelola Pengguna', icon: <PeopleIcon fontSize="small" /> },
-            { to: '/admin/students' as const, label: 'Akun Siswa', icon: <SchoolIcon fontSize="small" /> },
-            { to: '/admin/nis' as const, label: 'Kelola NIS', icon: <PeopleIcon fontSize="small" /> },
+            { to: '/admin/students' as const, label: 'Kelola Siswa', icon: <SchoolIcon fontSize="small" /> },
             { to: '/admin/logs' as const, label: 'Lihat Log', icon: <HistoryIcon fontSize="small" /> },
+        ]
+        : role === 'kepala_sekolah'
+        ? [
+            { to: '/admin' as const, label: 'Dashboard', icon: <DashboardIcon fontSize="small" /> },
+            { to: '/admin/reports' as const, label: 'Laporan', icon: <AssessmentIcon fontSize="small" /> },
         ]
         : [
             { to: '/admin' as const, label: 'Dashboard', icon: <DashboardIcon fontSize="small" /> },
             { to: '/admin/inbox' as const, label: 'Kotak Masuk', icon: <InboxIcon fontSize="small" /> },
+            { to: '/admin/counseling' as const, label: 'Pencatatan Konseling', icon: <AssignmentTurnedInIcon fontSize="small" /> },
+            { to: '/admin/reports' as const, label: 'Laporan', icon: <AssessmentIcon fontSize="small" /> },
+            { to: '/admin/student-profiles' as const, label: 'Data Siswa', icon: <GroupsIcon fontSize="small" /> },
+            { to: '/admin/repository' as const, label: 'Repository', icon: <LibraryBooksIcon fontSize="small" /> },
             { to: '/admin/kamus' as const, label: 'Kamus Risiko', icon: <MenuBookIcon fontSize="small" /> },
         ];
 
     const drawer = (
-        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: '#ffffff' }}>
-            <Box sx={{ p: 3, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: '#f7faff' }}>
+            <Box
+                sx={{
+                    p: 3,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                    background: 'linear-gradient(180deg, #ffffff 0%, #f4f8ff 100%)',
+                    borderBottom: '1px solid #e2e8f0',
+                }}
+            >
                 <Box sx={{
-                    width: 40, height: 40, borderRadius: 1.25, bgcolor: '#2563eb',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white'
+                    width: 42, height: 42, borderRadius: 2, bgcolor: '#2563eb',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
+                    boxShadow: '0 16px 32px rgba(37, 99, 235, 0.24)',
                 }}>
                     <AdminPanelSettingsIcon sx={{ fontSize: 20 }} />
                 </Box>
@@ -300,13 +326,11 @@ function AdminLayout() {
                         Open BK
                     </Typography>
                     <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#94a3b8' }}>
-                        {role === 'admin' ? 'IT Admin Dashboard' : 'Guru BK Dashboard'}
+                        {role === 'admin' ? 'IT Admin Dashboard' : role === 'kepala_sekolah' ? 'Kepala Sekolah Dashboard' : 'Guru BK Dashboard'}
                     </Typography>
                 </Box>
             </Box>
-            <Divider />
-
-            <Box sx={{ flex: 1, px: 2, py: 2 }}>
+            <Box sx={{ flex: 1, px: 2, py: 2.25 }}>
                 <List sx={{ p: 0 }}>
                     {navItems.map((item) => (
                         <ListItemButton key={item.to} onClick={() => navigateTo(item.to)} sx={navButtonSx(item.to)}>
@@ -317,7 +341,7 @@ function AdminLayout() {
                 </List>
             </Box>
 
-            <Box sx={{ p: 2.5, borderTop: '1px solid #e2e8f0' }}>
+            <Box sx={{ p: 2.5, borderTop: '1px solid #e2e8f0', bgcolor: '#ffffff' }}>
                 <ListItemButton onClick={handleOpenSettings} sx={{ borderRadius: 1, mb: 0.75, color: '#475569' }}>
                     <SettingsIcon sx={{ mr: 1.25, fontSize: 18 }} />
                     <Typography sx={{ fontWeight: 600, fontSize: '0.95rem' }}>Settings</Typography>
@@ -340,16 +364,17 @@ function AdminLayout() {
 
     return (
         <AdminLayoutFiltersProvider value={{ searchTerm, setSearchTerm, dateFilter, setDateFilter }}>
-            <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f3f6fb' }}>
+            <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#eef4fb' }}>
             <AppBar
                 position="fixed"
                 elevation={0}
                 sx={{
                     display: { sm: 'none' },
                     width: '100%',
-                    bgcolor: '#ffffff',
+                    bgcolor: 'rgba(255,255,255,0.9)',
                     color: '#0f172a',
                     borderBottom: '1px solid #e2e8f0',
+                    backdropFilter: 'blur(14px)',
                 }}
             >
                 <Toolbar>
@@ -358,11 +383,11 @@ function AdminLayout() {
                     </IconButton>
                     <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a', flex: 1 }}>Open BK</Typography>
                     <Chip
-                        label={role === 'admin' ? 'Admin IT' : 'Guru BK'}
+                        label={role === 'admin' ? 'Admin IT' : role === 'kepala_sekolah' ? 'Kepala Sekolah' : 'Guru BK'}
                         size="small"
                         sx={{
-                            bgcolor: role === 'admin' ? '#dbeafe' : '#f3e8ff',
-                            color: role === 'admin' ? '#1d4ed8' : '#7c3aed',
+                            bgcolor: role === 'admin' ? '#dbeafe' : role === 'kepala_sekolah' ? '#fef3c7' : '#f3e8ff',
+                            color: role === 'admin' ? '#1d4ed8' : role === 'kepala_sekolah' ? '#a16207' : '#7c3aed',
                             fontWeight: 700,
                         }}
                     />
@@ -377,7 +402,7 @@ function AdminLayout() {
                     ModalProps={{ keepMounted: true }}
                     sx={{
                         display: { xs: 'block', sm: 'none' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: DRAWER_WIDTH, border: 'none', boxShadow: '0 18px 36px rgba(15, 23, 42, 0.22)' },
+                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: DRAWER_WIDTH, border: 'none', boxShadow: '0 20px 40px rgba(15, 23, 42, 0.22)' },
                     }}
                 >
                     {drawer}
@@ -386,7 +411,7 @@ function AdminLayout() {
                     variant="permanent"
                     sx={{
                         display: { xs: 'none', sm: 'block' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: DRAWER_WIDTH, borderRight: '1px solid #e2e8f0' },
+                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: DRAWER_WIDTH, borderRight: '1px solid #dbe5f4', backgroundImage: 'linear-gradient(180deg, #f8fbff 0%, #f3f8ff 100%)' },
                     }}
                     open
                 >
@@ -407,16 +432,18 @@ function AdminLayout() {
                 <Paper
                     elevation={0}
                     sx={{
-                        border: '1px solid #e2e8f0',
-                        borderRadius: 1.5,
+                        border: '1px solid rgba(191, 219, 254, 0.75)',
+                        borderRadius: 3,
                         px: { xs: 1.5, sm: 2.5 },
-                        py: 1.25,
+                        py: 1.35,
                         mb: 2,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         gap: 2,
-                        bgcolor: '#ffffff'
+                        bgcolor: 'rgba(255,255,255,0.82)',
+                        backdropFilter: 'blur(18px)',
+                        boxShadow: '0 20px 44px rgba(15, 23, 42, 0.05)',
                     }}
                 >
                     <Stack direction="row" spacing={1.5} alignItems="center" sx={{ flex: 1, minWidth: 0 }}>
@@ -551,7 +578,7 @@ function AdminLayout() {
                     <DialogContent>
                         <Stack spacing={1.5} sx={{ mt: 0.5 }}>
                             <Typography><strong>Username:</strong> {session?.username || '-'}</Typography>
-                            <Typography><strong>Role:</strong> {role === 'admin' ? 'Admin IT' : 'Guru BK'}</Typography>
+                            <Typography><strong>Role:</strong> {role === 'admin' ? 'Admin IT' : role === 'kepala_sekolah' ? 'Kepala Sekolah' : 'Guru BK'}</Typography>
                             <Typography>
                                 <strong>Session berakhir:</strong>{' '}
                                 {session?.expiresAt ? new Date(session.expiresAt).toLocaleString('id-ID') : '-'}

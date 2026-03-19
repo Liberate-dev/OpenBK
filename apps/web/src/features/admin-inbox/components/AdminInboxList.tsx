@@ -21,10 +21,17 @@ interface MessageDetail {
   id: string;
   body: string;
   authorNis: string;
+  authorLabel: string;
+  sourceType: "student" | "public_report";
+  summary?: string | null;
+  studentName?: string | null;
+  studentClass?: string | null;
+  studentNis?: string | null;
   riskLevel: string;
   riskScore: number;
   riskTags: string[];
   submittedAt: string;
+  canReply: boolean;
   replies: Array<{
     id: number;
     body: string;
@@ -195,12 +202,31 @@ export function AdminInboxList() {
                     <strong>ID:</strong> {detail.id}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    <strong>Pengirim:</strong> NIS {detail.authorNis}
+                    <strong>Pengirim:</strong> {detail.authorLabel}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     <strong>Dikirim:</strong> {new Date(detail.submittedAt).toLocaleString("id-ID")}
                   </Typography>
                 </Stack>
+
+                {detail.sourceType === 'public_report' && (
+                  <Stack spacing={0.8}>
+                    {detail.summary && (
+                      <Typography variant="body2" color="text.secondary">
+                        <strong>Ringkasan:</strong> {detail.summary}
+                      </Typography>
+                    )}
+                    <Typography variant="body2" color="text.secondary">
+                      <strong>Nama Siswa:</strong> {detail.studentName || '-'}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      <strong>Kelas:</strong> {detail.studentClass || '-'}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      <strong>NIS Siswa:</strong> {detail.studentNis || '-'}
+                    </Typography>
+                  </Stack>
+                )}
 
                 {detail.riskTags && detail.riskTags.length > 0 && (
                   <Stack direction="row" spacing={0.5} flexWrap="wrap" gap={0.5}>
@@ -242,29 +268,37 @@ export function AdminInboxList() {
                 )}
 
                 {/* Reply form */}
-                <Divider />
-                <Stack spacing={2}>
-                  <TextField
-                    label="Tulis Balasan"
-                    multiline
-                    minRows={3}
-                    value={replyText}
-                    onChange={(e) => setReplyText(e.target.value)}
-                    fullWidth
-                    placeholder="Tulis balasan untuk siswa..."
-                  />
-                  {replyError && <Alert severity="error" sx={{ borderRadius: 2 }}>{replyError}</Alert>}
-                  {replySuccess && <Alert severity="success" sx={{ borderRadius: 2 }}>{replySuccess}</Alert>}
-                  <Button
-                    variant="contained"
-                    startIcon={replySending ? <CircularProgress size={18} color="inherit" /> : <ReplyIcon />}
-                    onClick={handleReply}
-                    disabled={replySending || !replyText.trim()}
-                    sx={{ alignSelf: 'flex-end', bgcolor: '#1c67f2', fontWeight: 700, borderRadius: 2, px: 3 }}
-                  >
-                    {replySending ? 'Mengirim...' : 'Kirim Balasan'}
-                  </Button>
-                </Stack>
+                {detail.canReply ? (
+                  <>
+                    <Divider />
+                    <Stack spacing={2}>
+                      <TextField
+                        label="Tulis Balasan"
+                        multiline
+                        minRows={3}
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                        fullWidth
+                        placeholder="Tulis balasan untuk siswa..."
+                      />
+                      {replyError && <Alert severity="error" sx={{ borderRadius: 2 }}>{replyError}</Alert>}
+                      {replySuccess && <Alert severity="success" sx={{ borderRadius: 2 }}>{replySuccess}</Alert>}
+                      <Button
+                        variant="contained"
+                        startIcon={replySending ? <CircularProgress size={18} color="inherit" /> : <ReplyIcon />}
+                        onClick={handleReply}
+                        disabled={replySending || !replyText.trim()}
+                        sx={{ alignSelf: 'flex-end', bgcolor: '#1c67f2', fontWeight: 700, borderRadius: 2, px: 3 }}
+                      >
+                        {replySending ? 'Mengirim...' : 'Kirim Balasan'}
+                      </Button>
+                    </Stack>
+                  </>
+                ) : (
+                  <Alert severity="info" sx={{ borderRadius: 2 }}>
+                    Laporan publik hanya dipakai untuk intake awal dan tidak memakai thread balasan.
+                  </Alert>
+                )}
               </Stack>
             </DialogContent>
             <DialogActions>
@@ -315,7 +349,7 @@ function InboxRow({ message, badgeColor, onClick }: InboxRowProps) {
           </Typography>
           <Stack direction="row" spacing={1.5} alignItems="center">
             <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
-              NIS {message.authorNis}
+              {message.authorLabel}
             </Typography>
             <Typography variant="caption" color="text.secondary">|</Typography>
             <Typography variant="caption" color="text.secondary">
