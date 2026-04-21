@@ -46,6 +46,7 @@ import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import GroupsIcon from '@mui/icons-material/Groups';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AdminLayoutFiltersProvider } from '~features/admin-layout/adminLayoutFilters';
 import { apiClient } from '~lib/apiClient';
@@ -158,7 +159,7 @@ function AdminLayout() {
         router.navigate({ to: '/admin/login' });
     };
 
-    const navigateTo = (to: '/admin' | '/admin/inbox' | '/admin/kamus' | '/admin/users' | '/admin/logs' | '/admin/students' | '/admin/repository' | '/admin/student-profiles' | '/admin/counseling' | '/admin/reports') => {
+    const navigateTo = (to: '/admin' | '/admin/inbox' | '/admin/kamus' | '/admin/users' | '/admin/logs' | '/admin/students' | '/admin/repository' | '/admin/student-profiles' | '/admin/counseling' | '/admin/reports' | '/admin/guru-report') => {
         router.navigate({ to });
         setMobileOpen(false);
     };
@@ -292,6 +293,12 @@ function AdminLayout() {
             { to: '/admin' as const, label: 'Dashboard', icon: <DashboardIcon fontSize="small" /> },
             { to: '/admin/reports' as const, label: 'Laporan', icon: <AssessmentIcon fontSize="small" /> },
         ]
+        : role === 'guru'
+        ? [
+            { to: '/admin' as const, label: 'Dashboard', icon: <DashboardIcon fontSize="small" /> },
+            { to: '/admin/guru-report' as const, label: 'Lapor Kasus', icon: <ReportProblemIcon fontSize="small" /> },
+            { to: '/admin/repository' as const, label: 'Repository', icon: <LibraryBooksIcon fontSize="small" /> },
+        ]
         : [
             { to: '/admin' as const, label: 'Dashboard', icon: <DashboardIcon fontSize="small" /> },
             { to: '/admin/inbox' as const, label: 'Kotak Masuk', icon: <InboxIcon fontSize="small" /> },
@@ -326,7 +333,7 @@ function AdminLayout() {
                         Open BK
                     </Typography>
                     <Typography sx={{ fontSize: '0.78rem', fontWeight: 600, color: '#94a3b8' }}>
-                        {role === 'admin' ? 'IT Admin Dashboard' : role === 'kepala_sekolah' ? 'Kepala Sekolah Dashboard' : 'Guru BK Dashboard'}
+                        {role === 'admin' ? 'IT Admin Dashboard' : role === 'kepala_sekolah' ? 'Kepala Sekolah Dashboard' : role === 'guru' ? 'Guru Dashboard' : 'Guru BK Dashboard'}
                     </Typography>
                 </Box>
             </Box>
@@ -383,11 +390,11 @@ function AdminLayout() {
                     </IconButton>
                     <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a', flex: 1 }}>Open BK</Typography>
                     <Chip
-                        label={role === 'admin' ? 'Admin IT' : role === 'kepala_sekolah' ? 'Kepala Sekolah' : 'Guru BK'}
+                        label={role === 'admin' ? 'Admin IT' : role === 'kepala_sekolah' ? 'Kepala Sekolah' : role === 'guru' ? 'Guru' : 'Guru BK'}
                         size="small"
                         sx={{
-                            bgcolor: role === 'admin' ? '#dbeafe' : role === 'kepala_sekolah' ? '#fef3c7' : '#f3e8ff',
-                            color: role === 'admin' ? '#1d4ed8' : role === 'kepala_sekolah' ? '#a16207' : '#7c3aed',
+                            bgcolor: role === 'admin' ? '#dbeafe' : role === 'kepala_sekolah' ? '#fef3c7' : role === 'guru' ? '#dcfce7' : '#f3e8ff',
+                            color: role === 'admin' ? '#1d4ed8' : role === 'kepala_sekolah' ? '#a16207' : role === 'guru' ? '#166534' : '#7c3aed',
                             fontWeight: 700,
                         }}
                     />
@@ -578,7 +585,7 @@ function AdminLayout() {
                     <DialogContent>
                         <Stack spacing={1.5} sx={{ mt: 0.5 }}>
                             <Typography><strong>Username:</strong> {session?.username || '-'}</Typography>
-                            <Typography><strong>Role:</strong> {role === 'admin' ? 'Admin IT' : role === 'kepala_sekolah' ? 'Kepala Sekolah' : 'Guru BK'}</Typography>
+                            <Typography><strong>Role:</strong> {role === 'admin' ? 'Admin IT' : role === 'kepala_sekolah' ? 'Kepala Sekolah' : role === 'guru' ? 'Guru' : 'Guru BK'}</Typography>
                             <Typography>
                                 <strong>Session berakhir:</strong>{' '}
                                 {session?.expiresAt ? new Date(session.expiresAt).toLocaleString('id-ID') : '-'}

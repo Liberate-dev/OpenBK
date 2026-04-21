@@ -44,6 +44,11 @@ class Admin extends Model
         return $this->role === 'kepala_sekolah';
     }
 
+    public function isGuru(): bool
+    {
+        return $this->role === 'guru';
+    }
+
     public function canAccessReports(): bool
     {
         return $this->isGuruBK() || $this->isKepalaSekolah();

@@ -13,6 +13,10 @@ class RepositoryItem extends Model
         'summary',
         'content',
         'link_url',
+        'visibility',
+        'file_path',
+        'file_original_name',
+        'file_size',
         'created_by_admin_id',
     ];
 

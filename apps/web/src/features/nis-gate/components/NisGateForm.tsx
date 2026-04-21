@@ -65,7 +65,7 @@ export function NisGateForm() {
           if (result.success && result.sessionToken) {
             authService.setSession({ nis: nis.trim(), token: result.sessionToken, expiresAt: Date.now() + 24 * 60 * 60 * 1000 });
             await router.invalidate();
-            router.navigate({ to: "/send-letter" });
+            router.navigate({ to: "/student" });
           }
         },
         onError: (error) => {
@@ -79,7 +79,7 @@ export function NisGateForm() {
           if (result.success && result.sessionToken) {
             authService.setSession({ nis: nis.trim(), token: result.sessionToken, expiresAt: Date.now() + 24 * 60 * 60 * 1000 });
             await router.invalidate();
-            router.navigate({ to: "/send-letter" });
+            router.navigate({ to: "/student" });
           }
         },
         onError: (error) => {

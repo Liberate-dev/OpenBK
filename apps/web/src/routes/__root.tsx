@@ -16,8 +16,9 @@ function RootLayout() {
   // We consider the root "/" (which is NisGate) or "/send-letter" as user-facing pages
   // Note: we can keep showing this header container for consistency unless they are on /admin
   const isAdminRoute = currentPath.startsWith('/admin');
+  const isStudentRoute = currentPath.startsWith('/student');
 
-  if (isAdminRoute) {
+  if (isAdminRoute || isStudentRoute) {
     return (
       <Suspense fallback={<SuspenseLoader />}>
         <Outlet />

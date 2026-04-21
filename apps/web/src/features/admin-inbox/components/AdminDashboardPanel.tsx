@@ -101,7 +101,7 @@ export function AdminDashboardPanel() {
             <TableHead>
               <TableRow sx={{ bgcolor: '#f8fafc' }}>
                 <TableCell sx={{ fontWeight: 700, color: '#64748b' }}>WAKTU</TableCell>
-                <TableCell sx={{ fontWeight: 700, color: '#64748b' }}>NIS</TableCell>
+                <TableCell sx={{ fontWeight: 700, color: '#64748b' }}>SUMBER</TableCell>
                 <TableCell sx={{ fontWeight: 700, color: '#64748b' }}>RINGKASAN</TableCell>
                 <TableCell sx={{ fontWeight: 700, color: '#64748b' }}>RISIKO</TableCell>
               </TableRow>
@@ -125,7 +125,7 @@ export function AdminDashboardPanel() {
                       })}
                     </TableCell>
                     <TableCell sx={{ fontWeight: 700, color: '#334155' }}>
-                      {message.authorNis}
+                      {message.authorLabel}
                     </TableCell>
                     <TableCell sx={{ color: '#475569' }}>
                       {message.preview}

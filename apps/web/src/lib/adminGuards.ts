@@ -21,6 +21,16 @@ export function requireGuruBkRole() {
   }
 }
 
+export function requireGuruRole() {
+  const session = adminAuthService.getSession();
+  if (!session) {
+    throw redirect({ to: '/admin/login' });
+  }
+  if (session.role !== 'guru') {
+    throw redirect({ to: '/admin' });
+  }
+}
+
 export function requireKepalaSekolahRole() {
   const session = adminAuthService.getSession();
   if (!session) {

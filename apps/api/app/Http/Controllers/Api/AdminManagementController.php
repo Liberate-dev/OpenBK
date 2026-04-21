@@ -46,7 +46,7 @@ class AdminManagementController extends Controller
         $validated = $request->validate([
             'username' => ['bail', 'required', 'string', 'min:3', 'max:50', 'regex:/^[A-Za-z0-9_.-]+$/', 'unique:admins,username'],
             'password' => ['required', 'string', 'min:6', 'max:255'],
-            'role' => ['required', Rule::in(['admin', 'guru_bk', 'kepala_sekolah'])],
+            'role' => ['required', Rule::in(['admin', 'guru_bk', 'kepala_sekolah', 'guru'])],
             'nip' => ['required', 'string', 'regex:/^\d{5,30}$/', 'unique:admins,nip'],
             'full_name' => ['required', 'string', 'min:3', 'max:150'],
         ]);
@@ -111,7 +111,7 @@ class AdminManagementController extends Controller
                 Rule::unique('admins', 'username')->ignore($id),
             ],
             'password' => ['sometimes', 'filled', 'string', 'min:6', 'max:255'],
-            'role' => ['sometimes', Rule::in(['admin', 'guru_bk', 'kepala_sekolah'])],
+            'role' => ['sometimes', Rule::in(['admin', 'guru_bk', 'kepala_sekolah', 'guru'])],
             'nip' => ['sometimes', 'filled', 'string', 'regex:/^\d{5,30}$/', Rule::unique('admins', 'nip')->ignore($id)],
             'full_name' => ['sometimes', 'filled', 'string', 'min:3', 'max:150'],
         ]);

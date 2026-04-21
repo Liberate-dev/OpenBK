@@ -1,7 +1,7 @@
 export interface AdminSession {
     username: string;
     token: string;
-    role: 'admin' | 'guru_bk' | 'kepala_sekolah';
+    role: 'admin' | 'guru_bk' | 'kepala_sekolah' | 'guru';
     expiresAt: number;
 }
 

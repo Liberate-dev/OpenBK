@@ -10,7 +10,6 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PeopleIcon from '@mui/icons-material/People';
-import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import { apiClient } from '~lib/apiClient';
 import { useAdminLayoutFilters } from '~features/admin-layout/adminLayoutFilters';
 import { requireAdminRole } from '~lib/adminGuards';
@@ -23,10 +22,12 @@ export const Route = createFileRoute('/admin/users')({
     component: UserManagement,
 });
 
+type AdminRole = 'admin' | 'guru_bk' | 'kepala_sekolah' | 'guru';
+
 interface AdminUser {
     id: number;
     username: string;
-    role: 'admin' | 'guru_bk' | 'kepala_sekolah';
+    role: AdminRole;
     nip: string;
     full_name: string;
     created_at: string;
@@ -35,20 +36,24 @@ interface AdminUser {
 interface UpdateAdminUserPayload {
     username?: string;
     password?: string;
-    role?: 'admin' | 'guru_bk' | 'kepala_sekolah';
+    role?: AdminRole;
     nip?: string;
     full_name?: string;
 }
 
-interface RecognizedReporter {
-    id: number;
-    nip: string;
-    aliasName: string;
-    description: string | null;
-    isActive: boolean;
-    createdAt: string | null;
-    updatedAt: string | null;
-}
+const ROLE_LABELS: Record<AdminRole, string> = {
+    admin: 'Admin IT',
+    guru_bk: 'Guru BK',
+    kepala_sekolah: 'Kepala Sekolah',
+    guru: 'Guru',
+};
+
+const ROLE_COLORS: Record<AdminRole, { bg: string; color: string }> = {
+    admin: { bg: '#dbeafe', color: '#1d4ed8' },
+    guru_bk: { bg: '#f3e8ff', color: '#7c3aed' },
+    kepala_sekolah: { bg: '#fef3c7', color: '#a16207' },
+    guru: { bg: '#dcfce7', color: '#166534' },
+};
 
 function UserManagement() {
     const theme = useTheme();
@@ -58,24 +63,11 @@ function UserManagement() {
     const [isLoading, setIsLoading] = useState(true);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
-    const [form, setForm] = useState({ username: '', password: '', role: 'guru_bk' as 'admin' | 'guru_bk' | 'kepala_sekolah', nip: '', full_name: '' });
+    const [form, setForm] = useState({ username: '', password: '', role: 'guru_bk' as AdminRole, nip: '', full_name: '' });
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [deleteConfirm, setDeleteConfirm] = useState<AdminUser | null>(null);
-
-    const [reporterDialogOpen, setReporterDialogOpen] = useState(false);
-    const [reporters, setReporters] = useState<RecognizedReporter[]>([]);
-    const [reporterLoading, setReporterLoading] = useState(false);
-    const [reporterSaving, setReporterSaving] = useState(false);
-    const [editingReporter, setEditingReporter] = useState<RecognizedReporter | null>(null);
-    const [deleteReporterConfirm, setDeleteReporterConfirm] = useState<RecognizedReporter | null>(null);
-    const [reporterForm, setReporterForm] = useState({
-        nip: '',
-        aliasName: '',
-        description: '',
-        isActive: true,
-    });
 
     const fetchUsers = useCallback(async () => {
         try {
@@ -88,23 +80,10 @@ function UserManagement() {
         }
     }, []);
 
-    const fetchReporters = useCallback(async () => {
-        try {
-            setReporterLoading(true);
-            const data = await apiClient<RecognizedReporter[]>('/admin/recognized-reporters');
-            setReporters(data);
-        } catch (err: unknown) {
-            setError(getErrorMessage(err, 'Gagal memuat NIP pelapor dikenali.'));
-        } finally {
-            setReporterLoading(false);
-        }
-    }, []);
-
     useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
     const filteredUsers = useMemo(() => {
         const query = searchTerm.trim().toLowerCase();
-
         return users.filter((user) => {
             const haystack = `${user.username} ${user.role} ${user.nip} ${user.full_name}`.toLowerCase();
             const matchesSearch = query === '' || haystack.includes(query);
@@ -125,28 +104,6 @@ function UserManagement() {
         setForm({ username: user.username, password: '', role: user.role, nip: user.nip, full_name: user.full_name });
         setError('');
         setDialogOpen(true);
-    };
-
-    const openReporterManager = () => {
-        setEditingReporter(null);
-        setReporterForm({ nip: '', aliasName: '', description: '', isActive: true });
-        setReporterDialogOpen(true);
-        fetchReporters();
-    };
-
-    const openReporterCreate = () => {
-        setEditingReporter(null);
-        setReporterForm({ nip: '', aliasName: '', description: '', isActive: true });
-    };
-
-    const openReporterEdit = (reporter: RecognizedReporter) => {
-        setEditingReporter(reporter);
-        setReporterForm({
-            nip: reporter.nip,
-            aliasName: reporter.aliasName,
-            description: reporter.description || '',
-            isActive: reporter.isActive,
-        });
     };
 
     const handleSave = async () => {
@@ -188,66 +145,13 @@ function UserManagement() {
         }
     };
 
-    const handleSaveReporter = async () => {
-        try {
-            setReporterSaving(true);
-            setError('');
-
-            const payload = {
-                nip: reporterForm.nip,
-                alias_name: reporterForm.aliasName,
-                description: reporterForm.description || null,
-                is_active: reporterForm.isActive,
-            };
-
-            if (editingReporter) {
-                await apiClient(`/admin/recognized-reporters/${editingReporter.id}`, {
-                    method: 'PUT',
-                    body: JSON.stringify(payload),
-                });
-                setSuccess('NIP pelapor berhasil diperbarui.');
-            } else {
-                await apiClient('/admin/recognized-reporters', {
-                    method: 'POST',
-                    body: JSON.stringify(payload),
-                });
-                setSuccess('NIP pelapor berhasil ditambahkan.');
-            }
-
-            setEditingReporter(null);
-            setReporterForm({ nip: '', aliasName: '', description: '', isActive: true });
-            fetchReporters();
-        } catch (err: unknown) {
-            setError(getErrorMessage(err, 'Gagal menyimpan NIP pelapor.'));
-        } finally {
-            setReporterSaving(false);
-        }
-    };
-
-    const handleDeleteReporter = async () => {
-        if (!deleteReporterConfirm) return;
-        try {
-            await apiClient(`/admin/recognized-reporters/${deleteReporterConfirm.id}`, { method: 'DELETE' });
-            setSuccess(`NIP pelapor ${deleteReporterConfirm.nip} berhasil dihapus.`);
-            setDeleteReporterConfirm(null);
-            if (editingReporter?.id === deleteReporterConfirm.id) {
-                setEditingReporter(null);
-                setReporterForm({ nip: '', aliasName: '', description: '', isActive: true });
-            }
-            fetchReporters();
-        } catch (err: unknown) {
-            setError(getErrorMessage(err, 'Gagal menghapus NIP pelapor.'));
-            setDeleteReporterConfirm(null);
-        }
-    };
-
     if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress /></Box>;
 
     return (
         <Container maxWidth="xl" disableGutters>
             <Stack spacing={3}>
                 {success && <Alert severity="success" onClose={() => setSuccess('')} sx={{ borderRadius: 2 }}>{success}</Alert>}
-                {error && !dialogOpen && !reporterDialogOpen && <Alert severity="error" onClose={() => setError('')} sx={{ borderRadius: 2 }}>{error}</Alert>}
+                {error && !dialogOpen && <Alert severity="error" onClose={() => setError('')} sx={{ borderRadius: 2 }}>{error}</Alert>}
 
                 <Paper elevation={0} sx={{ borderRadius: 3, border: '1px solid #e2e8f0', overflow: 'hidden', bgcolor: 'white' }}>
                     <Box sx={{ p: { xs: 2, sm: 3 } }}>
@@ -260,19 +164,13 @@ function UserManagement() {
                                     </Typography>
                                 </Stack>
                                 <Typography sx={{ color: '#64748b', fontSize: '0.95rem' }}>
-                                    Kelola akun Guru BK, Admin IT, dan daftar NIP pelapor yang boleh generate token form laporan.
+                                    Kelola akun Guru BK, Guru, Admin IT, dan Kepala Sekolah.
                                 </Typography>
                             </Box>
-                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
-                                <Button variant="outlined" startIcon={<VerifiedUserIcon />} onClick={openReporterManager}
-                                    sx={{ fontWeight: 700, borderRadius: 2, px: 3, py: 1 }}>
-                                    NIP Pelapor
-                                </Button>
-                                <Button variant="contained" startIcon={<AddIcon />} onClick={openCreate}
-                                    sx={{ bgcolor: '#1c67f2', fontWeight: 700, borderRadius: 2, px: 3, py: 1 }}>
-                                    Tambah Pengguna
-                                </Button>
-                            </Stack>
+                            <Button variant="contained" startIcon={<AddIcon />} onClick={openCreate}
+                                sx={{ bgcolor: '#1c67f2', fontWeight: 700, borderRadius: 2, px: 3, py: 1 }}>
+                                Tambah Pengguna
+                            </Button>
                         </Stack>
                     </Box>
                     <Divider />
@@ -294,17 +192,11 @@ function UserManagement() {
                                         <TableCell sx={{ fontWeight: 600, color: '#0f172a' }}>{user.username}</TableCell>
                                         <TableCell>
                                             <Chip
-                                                label={
-                                                    user.role === 'admin'
-                                                        ? 'Admin IT'
-                                                        : user.role === 'kepala_sekolah'
-                                                            ? 'Kepala Sekolah'
-                                                            : 'Guru BK'
-                                                }
+                                                label={ROLE_LABELS[user.role] || user.role}
                                                 size="small"
                                                 sx={{
-                                                    bgcolor: user.role === 'admin' ? '#dbeafe' : user.role === 'kepala_sekolah' ? '#fef3c7' : '#f3e8ff',
-                                                    color: user.role === 'admin' ? '#1d4ed8' : user.role === 'kepala_sekolah' ? '#a16207' : '#7c3aed',
+                                                    bgcolor: ROLE_COLORS[user.role]?.bg || '#f1f5f9',
+                                                    color: ROLE_COLORS[user.role]?.color || '#475569',
                                                     fontWeight: 700,
                                                 }}
                                             />
@@ -350,8 +242,9 @@ function UserManagement() {
                         <TextField label={editingUser ? "Password Baru (kosong = tidak diubah)" : "Password"} type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required={!editingUser} fullWidth />
                         <FormControl fullWidth>
                             <InputLabel>Role</InputLabel>
-                            <Select value={form.role} label="Role" onChange={(e) => setForm({ ...form, role: e.target.value })}>
+                            <Select value={form.role} label="Role" onChange={(e) => setForm({ ...form, role: e.target.value as AdminRole })}>
                                 <MenuItem value="guru_bk">Guru BK</MenuItem>
+                                <MenuItem value="guru">Guru</MenuItem>
                                 <MenuItem value="kepala_sekolah">Kepala Sekolah</MenuItem>
                                 <MenuItem value="admin">Admin IT</MenuItem>
                             </Select>
@@ -392,149 +285,6 @@ function UserManagement() {
                 <DialogActions>
                     <Button onClick={() => setDeleteConfirm(null)} color="inherit">Batal</Button>
                     <Button variant="contained" color="error" onClick={handleDelete} sx={{ fontWeight: 700 }}>Hapus</Button>
-                </DialogActions>
-            </Dialog>
-
-            <Dialog open={reporterDialogOpen} onClose={() => setReporterDialogOpen(false)} fullWidth maxWidth="lg" fullScreen={isMobile}>
-                <DialogTitle sx={{ fontWeight: 700 }}>Kelola NIP Pelapor Dikenali</DialogTitle>
-                <DialogContent>
-                    <Stack spacing={3} sx={{ mt: 1 }}>
-                        {error && <Alert severity="error">{error}</Alert>}
-                        <Alert severity="info">
-                            NIP di daftar ini tidak bisa login ke panel admin. Mereka hanya bisa generate token untuk membuka form `/lapor`.
-                        </Alert>
-
-                        <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems="flex-start">
-                            <Paper elevation={0} sx={{ border: '1px solid #e2e8f0', borderRadius: 3, p: 2.5, width: '100%', maxWidth: { md: 360 } }}>
-                                <Stack spacing={2}>
-                                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a' }}>
-                                        {editingReporter ? `Edit NIP ${editingReporter.nip}` : 'Tambah NIP Pelapor'}
-                                    </Typography>
-                                    <TextField
-                                        label="NIP"
-                                        value={reporterForm.nip}
-                                        onChange={(e) => setReporterForm((prev) => ({ ...prev, nip: e.target.value.replace(/\D/g, '').slice(0, 30) }))}
-                                        fullWidth
-                                    />
-                                    <TextField
-                                        label="Alias"
-                                        value={reporterForm.aliasName}
-                                        onChange={(e) => setReporterForm((prev) => ({ ...prev, aliasName: e.target.value }))}
-                                        fullWidth
-                                        helperText="Alias ini dipakai saat generate token."
-                                    />
-                                    <TextField
-                                        label="Deskripsi (opsional)"
-                                        value={reporterForm.description}
-                                        onChange={(e) => setReporterForm((prev) => ({ ...prev, description: e.target.value }))}
-                                        fullWidth
-                                    />
-                                    <FormControl fullWidth>
-                                        <InputLabel>Status</InputLabel>
-                                        <Select
-                                            value={reporterForm.isActive ? 'active' : 'inactive'}
-                                            label="Status"
-                                            onChange={(e) => setReporterForm((prev) => ({ ...prev, isActive: e.target.value === 'active' }))}
-                                        >
-                                            <MenuItem value="active">Aktif</MenuItem>
-                                            <MenuItem value="inactive">Nonaktif</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                    <Stack direction="row" spacing={1.5}>
-                                        <Button
-                                            variant="contained"
-                                            onClick={handleSaveReporter}
-                                            disabled={reporterSaving || !reporterForm.nip || !reporterForm.aliasName}
-                                            sx={{ bgcolor: '#1c67f2', fontWeight: 700 }}
-                                        >
-                                            {reporterSaving ? 'Menyimpan...' : (editingReporter ? 'Update' : 'Tambah')}
-                                        </Button>
-                                        <Button onClick={openReporterCreate} color="inherit">
-                                            Reset
-                                        </Button>
-                                    </Stack>
-                                </Stack>
-                            </Paper>
-
-                            <Paper elevation={0} sx={{ border: '1px solid #e2e8f0', borderRadius: 3, overflow: 'hidden', flex: 1, width: '100%' }}>
-                                <TableContainer>
-                                    <Table>
-                                        <TableHead>
-                                            <TableRow sx={{ bgcolor: '#f8fafc' }}>
-                                                <TableCell sx={{ fontWeight: 700 }}>NIP</TableCell>
-                                                <TableCell sx={{ fontWeight: 700 }}>Alias</TableCell>
-                                                {!isMobile && <TableCell sx={{ fontWeight: 700 }}>Deskripsi</TableCell>}
-                                                <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
-                                                <TableCell align="right" sx={{ fontWeight: 700 }}>Aksi</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {reporterLoading ? (
-                                                <TableRow>
-                                                    <TableCell colSpan={5} sx={{ textAlign: 'center', py: 5 }}>
-                                                        <CircularProgress size={24} />
-                                                    </TableCell>
-                                                </TableRow>
-                                            ) : reporters.length === 0 ? (
-                                                <TableRow>
-                                                    <TableCell colSpan={5} sx={{ textAlign: 'center', py: 5, color: '#94a3b8' }}>
-                                                        Belum ada NIP pelapor dikenali.
-                                                    </TableCell>
-                                                </TableRow>
-                                            ) : (
-                                                reporters.map((reporter) => (
-                                                    <TableRow key={reporter.id} hover>
-                                                        <TableCell sx={{ fontWeight: 600 }}>{reporter.nip}</TableCell>
-                                                        <TableCell>{reporter.aliasName}</TableCell>
-                                                        {!isMobile && <TableCell>{reporter.description || '-'}</TableCell>}
-                                                        <TableCell>
-                                                            <Chip
-                                                                label={reporter.isActive ? 'Aktif' : 'Nonaktif'}
-                                                                size="small"
-                                                                sx={{
-                                                                    bgcolor: reporter.isActive ? '#dcfce7' : '#fee2e2',
-                                                                    color: reporter.isActive ? '#166534' : '#991b1b',
-                                                                    fontWeight: 700,
-                                                                }}
-                                                            />
-                                                        </TableCell>
-                                                        <TableCell align="right">
-                                                            <Tooltip title="Edit">
-                                                                <IconButton size="small" onClick={() => openReporterEdit(reporter)} sx={{ color: '#1c67f2' }}>
-                                                                    <EditIcon fontSize="small" />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                            <Tooltip title="Hapus">
-                                                                <IconButton size="small" onClick={() => setDeleteReporterConfirm(reporter)} sx={{ color: '#ef4444' }}>
-                                                                    <DeleteIcon fontSize="small" />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))
-                                            )}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                            </Paper>
-                        </Stack>
-                    </Stack>
-                </DialogContent>
-                <DialogActions sx={{ px: 3, pb: 3 }}>
-                    <Button onClick={() => setReporterDialogOpen(false)} color="inherit">Tutup</Button>
-                </DialogActions>
-            </Dialog>
-
-            <Dialog open={!!deleteReporterConfirm} onClose={() => setDeleteReporterConfirm(null)}>
-                <DialogTitle sx={{ fontWeight: 700 }}>Hapus NIP Pelapor?</DialogTitle>
-                <DialogContent>
-                    <Typography>
-                        Anda yakin ingin menghapus NIP <strong>{deleteReporterConfirm?.nip}</strong>? NIP ini tidak bisa lagi generate token untuk form laporan.
-                    </Typography>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setDeleteReporterConfirm(null)} color="inherit">Batal</Button>
-                    <Button variant="contained" color="error" onClick={handleDeleteReporter} sx={{ fontWeight: 700 }}>Hapus</Button>
                 </DialogActions>
             </Dialog>
         </Container>

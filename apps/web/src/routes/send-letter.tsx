@@ -1,16 +1,13 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { SendLetterForm } from "~features/send-letter/components/SendLetterForm";
+import { createFileRoute, redirect } from '@tanstack/react-router';
+import { authService } from '~lib/auth';
 
-export const Route = createFileRoute("/send-letter")({
-  beforeLoad: ({ context }) => {
-    if (!context.auth.isAuthenticated()) {
-      throw redirect({ to: "/" });
+export const Route = createFileRoute('/send-letter')({
+  beforeLoad: () => {
+    // Redirect to new student layout
+    if (authService.isAuthenticated()) {
+      throw redirect({ to: '/student/send-letter' });
     }
+    throw redirect({ to: '/' });
   },
-  component: SendLetterPage
+  component: () => null,
 });
-
-function SendLetterPage() {
-  return <SendLetterForm />;
-}
-

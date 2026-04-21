@@ -42,3 +42,9 @@ public/hot
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Tools and Temp
+.codex
+.omx/
+.qwen/
+apps/web/.tanstack/tmp/

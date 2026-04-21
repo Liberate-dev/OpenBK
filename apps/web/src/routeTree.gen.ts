@@ -9,12 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StudentRouteImport } from './routes/student'
 import { Route as SendLetterRouteImport } from './routes/send-letter'
 import { Route as MyLettersRouteImport } from './routes/my-letters'
-import { Route as LaporRouteImport } from './routes/lapor'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StudentIndexRouteImport } from './routes/student.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as StudentSendLetterRouteImport } from './routes/student.send-letter'
+import { Route as StudentRepositoryRouteImport } from './routes/student.repository'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminStudentsRouteImport } from './routes/admin.students'
 import { Route as AdminStudentProfilesRouteImport } from './routes/admin.student-profiles'
@@ -25,8 +28,14 @@ import { Route as AdminLogsRouteImport } from './routes/admin.logs'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminKamusRouteImport } from './routes/admin.kamus'
 import { Route as AdminInboxRouteImport } from './routes/admin.inbox'
+import { Route as AdminGuruReportRouteImport } from './routes/admin.guru-report'
 import { Route as AdminCounselingRouteImport } from './routes/admin.counseling'
 
+const StudentRoute = StudentRouteImport.update({
+  id: '/student',
+  path: '/student',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SendLetterRoute = SendLetterRouteImport.update({
   id: '/send-letter',
   path: '/send-letter',
@@ -35,11 +44,6 @@ const SendLetterRoute = SendLetterRouteImport.update({
 const MyLettersRoute = MyLettersRouteImport.update({
   id: '/my-letters',
   path: '/my-letters',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LaporRoute = LaporRouteImport.update({
-  id: '/lapor',
-  path: '/lapor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -52,10 +56,25 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StudentIndexRoute = StudentIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => StudentRoute,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const StudentSendLetterRoute = StudentSendLetterRouteImport.update({
+  id: '/send-letter',
+  path: '/send-letter',
+  getParentRoute: () => StudentRoute,
+} as any)
+const StudentRepositoryRoute = StudentRepositoryRouteImport.update({
+  id: '/repository',
+  path: '/repository',
+  getParentRoute: () => StudentRoute,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
@@ -107,6 +126,11 @@ const AdminInboxRoute = AdminInboxRouteImport.update({
   path: '/inbox',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminGuruReportRoute = AdminGuruReportRouteImport.update({
+  id: '/guru-report',
+  path: '/guru-report',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCounselingRoute = AdminCounselingRouteImport.update({
   id: '/counseling',
   path: '/counseling',
@@ -116,10 +140,11 @@ const AdminCounselingRoute = AdminCounselingRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/lapor': typeof LaporRoute
   '/my-letters': typeof MyLettersRoute
   '/send-letter': typeof SendLetterRoute
+  '/student': typeof StudentRouteWithChildren
   '/admin/counseling': typeof AdminCounselingRoute
+  '/admin/guru-report': typeof AdminGuruReportRoute
   '/admin/inbox': typeof AdminInboxRoute
   '/admin/kamus': typeof AdminKamusRoute
   '/admin/login': typeof AdminLoginRoute
@@ -130,14 +155,17 @@ export interface FileRoutesByFullPath {
   '/admin/student-profiles': typeof AdminStudentProfilesRoute
   '/admin/students': typeof AdminStudentsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/student/repository': typeof StudentRepositoryRoute
+  '/student/send-letter': typeof StudentSendLetterRoute
   '/admin/': typeof AdminIndexRoute
+  '/student/': typeof StudentIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/lapor': typeof LaporRoute
   '/my-letters': typeof MyLettersRoute
   '/send-letter': typeof SendLetterRoute
   '/admin/counseling': typeof AdminCounselingRoute
+  '/admin/guru-report': typeof AdminGuruReportRoute
   '/admin/inbox': typeof AdminInboxRoute
   '/admin/kamus': typeof AdminKamusRoute
   '/admin/login': typeof AdminLoginRoute
@@ -148,16 +176,20 @@ export interface FileRoutesByTo {
   '/admin/student-profiles': typeof AdminStudentProfilesRoute
   '/admin/students': typeof AdminStudentsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/student/repository': typeof StudentRepositoryRoute
+  '/student/send-letter': typeof StudentSendLetterRoute
   '/admin': typeof AdminIndexRoute
+  '/student': typeof StudentIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/lapor': typeof LaporRoute
   '/my-letters': typeof MyLettersRoute
   '/send-letter': typeof SendLetterRoute
+  '/student': typeof StudentRouteWithChildren
   '/admin/counseling': typeof AdminCounselingRoute
+  '/admin/guru-report': typeof AdminGuruReportRoute
   '/admin/inbox': typeof AdminInboxRoute
   '/admin/kamus': typeof AdminKamusRoute
   '/admin/login': typeof AdminLoginRoute
@@ -168,17 +200,21 @@ export interface FileRoutesById {
   '/admin/student-profiles': typeof AdminStudentProfilesRoute
   '/admin/students': typeof AdminStudentsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/student/repository': typeof StudentRepositoryRoute
+  '/student/send-letter': typeof StudentSendLetterRoute
   '/admin/': typeof AdminIndexRoute
+  '/student/': typeof StudentIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/admin'
-    | '/lapor'
     | '/my-letters'
     | '/send-letter'
+    | '/student'
     | '/admin/counseling'
+    | '/admin/guru-report'
     | '/admin/inbox'
     | '/admin/kamus'
     | '/admin/login'
@@ -189,14 +225,17 @@ export interface FileRouteTypes {
     | '/admin/student-profiles'
     | '/admin/students'
     | '/admin/users'
+    | '/student/repository'
+    | '/student/send-letter'
     | '/admin/'
+    | '/student/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/lapor'
     | '/my-letters'
     | '/send-letter'
     | '/admin/counseling'
+    | '/admin/guru-report'
     | '/admin/inbox'
     | '/admin/kamus'
     | '/admin/login'
@@ -207,15 +246,19 @@ export interface FileRouteTypes {
     | '/admin/student-profiles'
     | '/admin/students'
     | '/admin/users'
+    | '/student/repository'
+    | '/student/send-letter'
     | '/admin'
+    | '/student'
   id:
     | '__root__'
     | '/'
     | '/admin'
-    | '/lapor'
     | '/my-letters'
     | '/send-letter'
+    | '/student'
     | '/admin/counseling'
+    | '/admin/guru-report'
     | '/admin/inbox'
     | '/admin/kamus'
     | '/admin/login'
@@ -226,19 +269,29 @@ export interface FileRouteTypes {
     | '/admin/student-profiles'
     | '/admin/students'
     | '/admin/users'
+    | '/student/repository'
+    | '/student/send-letter'
     | '/admin/'
+    | '/student/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
-  LaporRoute: typeof LaporRoute
   MyLettersRoute: typeof MyLettersRoute
   SendLetterRoute: typeof SendLetterRoute
+  StudentRoute: typeof StudentRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/student': {
+      id: '/student'
+      path: '/student'
+      fullPath: '/student'
+      preLoaderRoute: typeof StudentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/send-letter': {
       id: '/send-letter'
       path: '/send-letter'
@@ -251,13 +304,6 @@ declare module '@tanstack/react-router' {
       path: '/my-letters'
       fullPath: '/my-letters'
       preLoaderRoute: typeof MyLettersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/lapor': {
-      id: '/lapor'
-      path: '/lapor'
-      fullPath: '/lapor'
-      preLoaderRoute: typeof LaporRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -274,12 +320,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/student/': {
+      id: '/student/'
+      path: '/'
+      fullPath: '/student/'
+      preLoaderRoute: typeof StudentIndexRouteImport
+      parentRoute: typeof StudentRoute
+    }
     '/admin/': {
       id: '/admin/'
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/student/send-letter': {
+      id: '/student/send-letter'
+      path: '/send-letter'
+      fullPath: '/student/send-letter'
+      preLoaderRoute: typeof StudentSendLetterRouteImport
+      parentRoute: typeof StudentRoute
+    }
+    '/student/repository': {
+      id: '/student/repository'
+      path: '/repository'
+      fullPath: '/student/repository'
+      preLoaderRoute: typeof StudentRepositoryRouteImport
+      parentRoute: typeof StudentRoute
     }
     '/admin/users': {
       id: '/admin/users'
@@ -351,6 +418,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminInboxRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/guru-report': {
+      id: '/admin/guru-report'
+      path: '/guru-report'
+      fullPath: '/admin/guru-report'
+      preLoaderRoute: typeof AdminGuruReportRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/counseling': {
       id: '/admin/counseling'
       path: '/counseling'
@@ -363,6 +437,7 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminCounselingRoute: typeof AdminCounselingRoute
+  AdminGuruReportRoute: typeof AdminGuruReportRoute
   AdminInboxRoute: typeof AdminInboxRoute
   AdminKamusRoute: typeof AdminKamusRoute
   AdminLoginRoute: typeof AdminLoginRoute
@@ -378,6 +453,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminCounselingRoute: AdminCounselingRoute,
+  AdminGuruReportRoute: AdminGuruReportRoute,
   AdminInboxRoute: AdminInboxRoute,
   AdminKamusRoute: AdminKamusRoute,
   AdminLoginRoute: AdminLoginRoute,
@@ -393,12 +469,27 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface StudentRouteChildren {
+  StudentRepositoryRoute: typeof StudentRepositoryRoute
+  StudentSendLetterRoute: typeof StudentSendLetterRoute
+  StudentIndexRoute: typeof StudentIndexRoute
+}
+
+const StudentRouteChildren: StudentRouteChildren = {
+  StudentRepositoryRoute: StudentRepositoryRoute,
+  StudentSendLetterRoute: StudentSendLetterRoute,
+  StudentIndexRoute: StudentIndexRoute,
+}
+
+const StudentRouteWithChildren =
+  StudentRoute._addFileChildren(StudentRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
-  LaporRoute: LaporRoute,
   MyLettersRoute: MyLettersRoute,
   SendLetterRoute: SendLetterRoute,
+  StudentRoute: StudentRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

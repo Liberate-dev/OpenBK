@@ -4,10 +4,8 @@ use App\Http\Controllers\Api\AdminAuthController;
 use App\Http\Controllers\Api\AdminManagementController;
 use App\Http\Controllers\Api\CounselingRecordController;
 use App\Http\Controllers\Api\CounselingReportController;
+use App\Http\Controllers\Api\GuruReportController;
 use App\Http\Controllers\Api\MessageController;
-use App\Http\Controllers\Api\PublicReportAuthController;
-use App\Http\Controllers\Api\PublicReportController;
-use App\Http\Controllers\Api\RecognizedReporterController;
 use App\Http\Controllers\Api\RepositoryController;
 use App\Http\Controllers\Api\StudentAuthController;
 use App\Http\Controllers\Api\StudentProfileController;
@@ -21,21 +19,24 @@ Route::prefix('v1')->group(function () {
     Route::post('/students/login', [StudentAuthController::class, 'login']);
     Route::post('/students/request-password-reset', [StudentAuthController::class, 'requestPasswordReset']);
 
+    Route::get('/student/repository/{id}/download', [RepositoryController::class, 'download'])->whereNumber('id');
+
     // Protected student endpoints
     Route::middleware('auth:sanctum')->group(function () use ($referenceIdPattern) {
         Route::post('/messages', [MessageController::class, 'store']);
         Route::get('/messages/history', [MessageController::class, 'studentHistory']);
         Route::post('/messages/{referenceId}/reply', [MessageController::class, 'studentReply'])
             ->where('referenceId', $referenceIdPattern);
+
+        // Student repository (public items only)
+        Route::get('/student/repository', [RepositoryController::class, 'publicIndex']);
     });
 
     // Admin auth endpoints (public)
     Route::post('/admin/login', [AdminAuthController::class, 'login']);
     Route::post('/admin/generate-token', [AdminAuthController::class, 'generateToken']);
     Route::post('/admin/verify-token', [AdminAuthController::class, 'verifyToken']);
-    Route::post('/report-access/generate-token', [PublicReportAuthController::class, 'generateToken']);
-    Route::post('/report-access/verify-token', [PublicReportAuthController::class, 'verifyToken']);
-    Route::post('/public-reports', [PublicReportController::class, 'store']);
+    Route::get('/admin/repository/{id}/download', [RepositoryController::class, 'download'])->whereNumber('id');
 
     // Protected admin endpoints (both roles)
     Route::middleware('auth:sanctum')->group(function () use ($referenceIdPattern) {
@@ -59,15 +60,15 @@ Route::prefix('v1')->group(function () {
         Route::get('/admin/reports/summary', [CounselingReportController::class, 'summary']);
         Route::get('/admin/reports/export', [CounselingReportController::class, 'export']);
 
+        // Guru (regular teacher) endpoints
+        Route::post('/admin/guru/reports', [GuruReportController::class, 'store']);
+        Route::get('/admin/guru/repository', [RepositoryController::class, 'publicIndex']);
+
         // Admin IT endpoints
         Route::get('/admin/users', [AdminManagementController::class, 'index']);
         Route::post('/admin/users', [AdminManagementController::class, 'store']);
         Route::put('/admin/users/{id}', [AdminManagementController::class, 'update'])->whereNumber('id');
         Route::delete('/admin/users/{id}', [AdminManagementController::class, 'destroy'])->whereNumber('id');
-        Route::get('/admin/recognized-reporters', [RecognizedReporterController::class, 'index']);
-        Route::post('/admin/recognized-reporters', [RecognizedReporterController::class, 'store']);
-        Route::put('/admin/recognized-reporters/{id}', [RecognizedReporterController::class, 'update'])->whereNumber('id');
-        Route::delete('/admin/recognized-reporters/{id}', [RecognizedReporterController::class, 'destroy'])->whereNumber('id');
         Route::get('/admin/logs', [AdminManagementController::class, 'logs']);
         Route::get('/admin/students', [AdminManagementController::class, 'students']);
         Route::get('/admin/student-reset-requests', [AdminManagementController::class, 'resetRequests']);

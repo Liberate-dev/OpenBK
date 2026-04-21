@@ -48,6 +48,8 @@ services:
       WAIT_FOR_DB: "true"
     ports:
       - "8000:8000"
+    volumes:
+      - ./apps/api:/var/www/html
     healthcheck:
       test: ["CMD-SHELL", "php -r \"exit(@fsockopen('127.0.0.1', 8000) ? 0 : 1);\""]
       interval: 15s
