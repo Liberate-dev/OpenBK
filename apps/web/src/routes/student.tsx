@@ -29,15 +29,15 @@ export const Route = createFileRoute('/student')({
 const shell = {
   bgTop: '#eef5ff',
   bgBottom: '#f7fbff',
-  panel: 'rgba(255,255,255,0.82)',
+  panel: 'rgba(255,255,255,0.88)',
   panelStrong: '#ffffff',
-  border: 'rgba(148, 163, 184, 0.22)',
+  border: 'rgba(148, 163, 184, 0.16)',
   text: '#10233f',
   muted: '#60738f',
   primary: '#1a73e8',
   primaryDeep: '#0f4fbf',
   accent: '#e44747',
-  primarySoft: 'rgba(26, 115, 232, 0.12)',
+  primarySoft: 'rgba(26, 115, 232, 0.08)',
 };
 
 function StudentLayout() {
@@ -68,128 +68,137 @@ function StudentLayout() {
       sx={{
         minHeight: '100vh',
         color: shell.text,
-        background: `radial-gradient(circle at top left, rgba(120, 179, 255, 0.28), transparent 28%),
-          radial-gradient(circle at top right, rgba(15, 79, 191, 0.12), transparent 22%),
-          linear-gradient(180deg, ${shell.bgTop} 0%, ${shell.bgBottom} 55%, #ffffff 100%)`,
+        background: `radial-gradient(ellipse 80% 50% at 20% -10%, rgba(120, 179, 255, 0.18), transparent 50%),
+          radial-gradient(ellipse 60% 40% at 80% 0%, rgba(15, 79, 191, 0.08), transparent 45%),
+          linear-gradient(185deg, ${shell.bgTop} 0%, ${shell.bgBottom} 60%, #ffffff 100%)`,
       }}
     >
       <Container maxWidth="lg" sx={{ py: { xs: 2, md: 3.5 } }}>
         <Stack spacing={{ xs: 2, md: 3 }}>
-          <Stack
-            direction={{ xs: 'column', md: 'row' }}
-            alignItems={{ xs: 'stretch', md: 'center' }}
-            justifyContent="space-between"
-            gap={2}
+          <Box
             sx={{
-              px: { xs: 2, md: 3 },
-              py: { xs: 2, md: 2.5 },
-              borderRadius: '30px',
+              mx: { xs: 2, md: 4 },
+              px: { xs: 2.5, md: 3.5 },
+              py: { xs: 2, md: 2.2 },
+              borderRadius: '28px',
               background: shell.panel,
-              backdropFilter: 'blur(18px)',
+              backdropFilter: 'blur(20px)',
               border: `1px solid ${shell.border}`,
-              boxShadow: '0 24px 60px rgba(148, 163, 184, 0.16)',
+              boxShadow: '0 8px 32px rgba(15, 79, 191, 0.06), 0 2px 8px rgba(148, 163, 184, 0.04)',
             }}
           >
-            <Stack direction="row" alignItems="center" spacing={1.5}>
-              <Box
-                sx={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 1,
-                  px: 1.6,
-                  py: 1,
-                  borderRadius: '999px',
-                  bgcolor: shell.panelStrong,
-                  boxShadow: '0 10px 24px rgba(15, 79, 191, 0.12)',
-                }}
-              >
-                <SchoolRoundedIcon sx={{ fontSize: 18, color: shell.primary }} />
-                <Typography sx={{ fontWeight: 800, letterSpacing: '-0.02em', color: shell.primary }}>
-                  Open BK
-                </Typography>
-              </Box>
-              <Typography sx={{ display: { xs: 'none', md: 'block' }, color: shell.muted, fontSize: '0.95rem' }}>
-                Ruang aman untuk bercerita, bertanya, dan bertumbuh.
-              </Typography>
-            </Stack>
-
-            <Stack direction="row" alignItems="center" spacing={1.2} flexWrap="wrap" useFlexGap>
-              <Stack
-                direction="row"
-                spacing={1.2}
-                alignItems="center"
-                sx={{
-                  px: 1.25,
-                  py: 0.9,
-                  borderRadius: '18px',
-                  bgcolor: 'rgba(255,255,255,0.72)',
-                  border: `1px solid ${shell.border}`,
-                }}
-              >
-                <ShieldRoundedIcon sx={{ fontSize: 18, color: shell.primaryDeep }} />
-                <Box>
-                  <Typography sx={{ fontSize: '0.68rem', fontWeight: 800, color: shell.muted, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                    Student ID
-                  </Typography>
-                  <Typography sx={{ fontSize: '0.92rem', fontWeight: 800, color: shell.text }}>
-                    NIS {session?.nis || '-'}
+            <Stack
+              direction={{ xs: 'column', md: 'row' }}
+              alignItems={{ xs: 'stretch', md: 'center' }}
+              justifyContent="space-between"
+              gap={{ xs: 2, md: 0 }}
+            >
+              <Stack direction="row" alignItems="center" spacing={{ xs: 1.5, md: 2 }}>
+                <Box
+                  sx={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    px: { xs: 1.4, md: 2 },
+                    py: { xs: 0.9, md: 1.1 },
+                    borderRadius: '18px',
+                    bgcolor: shell.panelStrong,
+                    boxShadow: '0 4px 16px rgba(15, 79, 191, 0.08)',
+                    border: `1px solid ${shell.border}`,
+                  }}
+                >
+                  <SchoolRoundedIcon sx={{ fontSize: { xs: 16, md: 18 }, color: shell.primary }} />
+                  <Typography sx={{ fontWeight: 900, letterSpacing: '-0.03em', color: shell.primary, fontSize: { xs: '0.95rem', md: '1rem' } }}>
+                    Open BK
                   </Typography>
                 </Box>
+                <Typography sx={{ display: { xs: 'none', lg: 'block' }, color: shell.muted, fontSize: '0.88rem', pl: 1 }}>
+                  Ruang aman untuk bercerita dan bertumbuh
+                </Typography>
               </Stack>
 
-              <IconButton
-                sx={{
-                  width: 46,
-                  height: 46,
-                  color: shell.primaryDeep,
-                  bgcolor: 'rgba(255,255,255,0.72)',
-                  border: `1px solid ${shell.border}`,
-                }}
-              >
-                <NotificationsNoneRoundedIcon sx={{ fontSize: 20 }} />
-              </IconButton>
+              <Stack direction="row" alignItems="center" spacing={{ xs: 1, md: 1.5 }} flexWrap="wrap" useFlexGap>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    px: 1.6,
+                    py: 0.95,
+                    borderRadius: '16px',
+                    bgcolor: shell.panelStrong,
+                    border: `1px solid ${shell.border}`,
+                    boxShadow: '0 2px 8px rgba(15, 79, 191, 0.04)',
+                  }}
+                >
+                  <ShieldRoundedIcon sx={{ fontSize: 16, color: shell.primaryDeep }} />
+                  <Box>
+                    <Typography sx={{ fontSize: '0.62rem', fontWeight: 800, color: shell.muted, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                      NIS
+                    </Typography>
+                    <Typography sx={{ fontSize: '0.9rem', fontWeight: 800, color: shell.text, letterSpacing: '-0.01em' }}>
+                      {session?.nis || '-'}
+                    </Typography>
+                  </Box>
+                </Box>
 
-              <Button
-                onClick={handleLogout}
-                variant="contained"
-                disableElevation
-                sx={{
-                  borderRadius: '999px',
-                  px: 2.7,
-                  py: 1.15,
-                  textTransform: 'none',
-                  fontWeight: 800,
-                  bgcolor: shell.accent,
-                  boxShadow: '0 14px 28px rgba(228, 71, 71, 0.24)',
-                  '&:hover': {
-                    bgcolor: '#d93b3b',
-                    boxShadow: '0 16px 32px rgba(217, 59, 59, 0.28)',
-                  },
-                }}
-              >
-                Keluar
-              </Button>
+                <IconButton
+                  sx={{
+                    width: 44,
+                    height: 44,
+                    color: shell.primaryDeep,
+                    bgcolor: shell.panelStrong,
+                    border: `1px solid ${shell.border}`,
+                    boxShadow: '0 2px 8px rgba(15, 79, 191, 0.04)',
+                    '&:hover': { bgcolor: shell.primarySoft },
+                  }}
+                >
+                  <NotificationsNoneRoundedIcon sx={{ fontSize: 18 }} />
+                </IconButton>
+
+                <Button
+                  onClick={handleLogout}
+                  variant="contained"
+                  disableElevation
+                  sx={{
+                    borderRadius: '14px',
+                    px: { xs: 2, md: 2.5 },
+                    py: 1.1,
+                    textTransform: 'none',
+                    fontWeight: 800,
+                    fontSize: '0.88rem',
+                    bgcolor: shell.accent,
+                    boxShadow: '0 4px 16px rgba(228, 71, 71, 0.2)',
+                    '&:hover': {
+                      bgcolor: '#d93b3b',
+                      boxShadow: '0 6px 20px rgba(217, 59, 59, 0.28)',
+                    },
+                  }}
+                >
+                  Keluar
+                </Button>
+              </Stack>
             </Stack>
-          </Stack>
+          </Box>
 
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 2.5, md: 3 }}>
             <Box
               sx={{
-                width: { xs: '100%', md: 284 },
+                width: { xs: '100%', md: 260 },
                 flexShrink: 0,
               }}
             >
               <Stack
-                spacing={2}
+                spacing={1.5}
                 sx={{
                   position: { md: 'sticky' },
-                  top: 24,
+                  top: 20,
                   p: 2,
-                  borderRadius: '30px',
+                  borderRadius: '24px',
                   bgcolor: shell.panel,
                   border: `1px solid ${shell.border}`,
-                  boxShadow: '0 24px 56px rgba(148, 163, 184, 0.12)',
-                  backdropFilter: 'blur(18px)',
+                  boxShadow: '0 4px 20px rgba(15, 79, 191, 0.05), 0 1px 4px rgba(148, 163, 184, 0.03)',
+                  backdropFilter: 'blur(20px)',
                 }}
               >
                 <Stack
@@ -197,28 +206,30 @@ function StudentLayout() {
                   spacing={1.5}
                   alignItems="center"
                   sx={{
-                    p: 1.25,
-                    borderRadius: '22px',
-                    bgcolor: 'rgba(255,255,255,0.72)',
+                    p: 1.5,
+                    borderRadius: '18px',
+                    bgcolor: shell.panelStrong,
+                    border: `1px solid ${shell.border}`,
                   }}
                 >
                   <Avatar
                     sx={{
-                      width: 52,
-                      height: 52,
+                      width: 48,
+                      height: 48,
                       bgcolor: shell.primary,
-                      boxShadow: '0 12px 24px rgba(26, 115, 232, 0.22)',
+                      boxShadow: '0 4px 16px rgba(26, 115, 232, 0.2)',
                       fontWeight: 800,
+                      fontSize: '1.1rem',
                     }}
                   >
                     {session?.nis?.[0] || 'S'}
                   </Avatar>
-                  <Box>
-                    <Typography sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography sx={{ fontWeight: 800, letterSpacing: '-0.02em', fontSize: '0.95rem', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {session?.nis || 'Siswa'}
                     </Typography>
-                    <Typography sx={{ fontSize: '0.84rem', color: shell.muted }}>
-                      Akses pribadi siswa Open BK
+                    <Typography sx={{ fontSize: '0.78rem', color: shell.muted }}>
+                      Siswa Open BK
                     </Typography>
                   </Box>
                 </Stack>
@@ -233,13 +244,14 @@ function StudentLayout() {
                         startIcon={item.icon}
                         sx={{
                           flexShrink: 0,
-                          px: 1.8,
+                          px: 2,
                           py: 1,
-                          borderRadius: '999px',
+                          borderRadius: '14px',
                           textTransform: 'none',
                           fontWeight: 700,
+                          fontSize: '0.88rem',
                           color: active ? '#ffffff' : shell.text,
-                          bgcolor: active ? shell.primary : 'rgba(255,255,255,0.78)',
+                          bgcolor: active ? shell.primary : shell.panelStrong,
                           border: active ? 'none' : `1px solid ${shell.border}`,
                         }}
                       >
@@ -249,7 +261,7 @@ function StudentLayout() {
                   })}
                 </Box>
 
-                <Stack spacing={1} sx={{ display: { xs: 'none', md: 'flex' } }}>
+                <Stack spacing={0.8} sx={{ display: { xs: 'none', md: 'flex' } }}>
                   {navItems.map((item) => {
                     const active = isActive(item.to, item.exact);
                     return (
@@ -260,42 +272,43 @@ function StudentLayout() {
                         disableRipple
                         sx={{
                           justifyContent: 'flex-start',
-                          px: 1.4,
-                          py: 1.45,
-                          borderRadius: '22px',
+                          px: 1.5,
+                          py: 1.3,
+                          borderRadius: '16px',
                           textTransform: 'none',
                           color: active ? '#ffffff' : shell.text,
                           background: active
-                            ? 'linear-gradient(135deg, #1a73e8 0%, #5ba7ff 100%)'
-                            : 'rgba(255,255,255,0.72)',
-                          boxShadow: active ? '0 18px 32px rgba(26, 115, 232, 0.25)' : 'none',
-                          border: active ? 'none' : `1px solid ${shell.border}`,
+                            ? `linear-gradient(135deg, ${shell.primary} 0%, ${shell.primaryDeep} 100%)`
+                            : 'transparent',
+                          boxShadow: active ? '0 4px 16px rgba(26, 115, 232, 0.2)' : 'none',
+                          border: active ? 'none' : `1px solid transparent`,
                           '&:hover': {
                             background: active
-                              ? 'linear-gradient(135deg, #1968d4 0%, #519ef5 100%)'
-                              : 'rgba(255,255,255,0.94)',
+                              ? `linear-gradient(135deg, ${shell.primaryDeep} 0%, ${shell.primary} 100%)`
+                              : shell.primarySoft,
                           },
                         }}
                       >
-                        <Stack direction="row" spacing={1.4} alignItems="center">
+                        <Stack direction="row" spacing={1.5} alignItems="center">
                           <Box
                             sx={{
-                              width: 40,
-                              height: 40,
-                              borderRadius: '14px',
+                              width: 38,
+                              height: 38,
+                              borderRadius: '12px',
                               display: 'grid',
                               placeItems: 'center',
-                              bgcolor: active ? 'rgba(255,255,255,0.18)' : shell.primarySoft,
+                              bgcolor: active ? 'rgba(255,255,255,0.2)' : shell.primarySoft,
                               color: active ? '#ffffff' : shell.primary,
+                              transition: 'all 200ms ease',
                             }}
                           >
                             {item.icon}
                           </Box>
                           <Box sx={{ textAlign: 'left' }}>
-                            <Typography sx={{ fontWeight: 800, lineHeight: 1.15 }}>
+                            <Typography sx={{ fontWeight: 800, lineHeight: 1.2, fontSize: '0.9rem' }}>
                               {item.label}
                             </Typography>
-                            <Typography sx={{ fontSize: '0.76rem', color: active ? 'rgba(255,255,255,0.82)' : shell.muted }}>
+                            <Typography sx={{ fontSize: '0.72rem', color: active ? 'rgba(255,255,255,0.78)' : shell.muted }}>
                               {item.caption}
                             </Typography>
                           </Box>
@@ -307,17 +320,21 @@ function StudentLayout() {
 
                 <Box
                   sx={{
-                    p: 1.7,
-                    borderRadius: '22px',
-                    background: 'linear-gradient(180deg, rgba(15, 79, 191, 0.08) 0%, rgba(26, 115, 232, 0.02) 100%)',
-                    border: `1px solid rgba(26, 115, 232, 0.10)`,
+                    p: 1.8,
+                    mt: 0.5,
+                    borderRadius: '16px',
+                    background: `linear-gradient(135deg, ${shell.primarySoft} 0%, rgba(15, 79, 191, 0.03) 100%)`,
+                    border: `1px solid ${shell.border}`,
                   }}
                 >
-                  <Typography sx={{ fontSize: '0.74rem', fontWeight: 800, color: shell.primary, letterSpacing: '0.08em', textTransform: 'uppercase', mb: 0.8 }}>
-                    Privasi
-                  </Typography>
-                  <Typography sx={{ fontSize: '0.87rem', color: shell.muted, lineHeight: 1.65 }}>
-                    Identitas siswa tetap terlindungi. Gunakan menu surat untuk bercerita dengan nyaman dan terarah.
+                  <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+                    <ShieldRoundedIcon sx={{ fontSize: 14, color: shell.primary }} />
+                    <Typography sx={{ fontSize: '0.7rem', fontWeight: 800, color: shell.primary, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                      Privasi Terjamin
+                    </Typography>
+                  </Stack>
+                  <Typography sx={{ fontSize: '0.82rem', color: shell.muted, lineHeight: 1.6 }}>
+                    Identitasmu terlindungi. Cerita dengan nyaman.
                   </Typography>
                 </Box>
               </Stack>

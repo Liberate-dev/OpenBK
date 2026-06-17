@@ -24,9 +24,9 @@ const dashboardTone = {
   muted: '#60738f',
   primary: '#1a73e8',
   primaryDeep: '#0f4fbf',
-  primarySoft: 'rgba(26, 115, 232, 0.10)',
+  primarySoft: 'rgba(26, 115, 232, 0.06)',
   card: '#ffffff',
-  border: 'rgba(148, 163, 184, 0.18)',
+  border: 'rgba(148, 163, 184, 0.12)',
 };
 
 function StudentDashboard() {
@@ -51,51 +51,64 @@ function StudentDashboard() {
   }, [fetchStats]);
 
   return (
-    <Stack spacing={{ xs: 2.5, md: 3 }}>
+    <Stack spacing={{ xs: 2, md: 2.5 }}>
       <Paper
         elevation={0}
         sx={{
           overflow: 'hidden',
-          borderRadius: '34px',
+          borderRadius: '24px',
           border: `1px solid ${dashboardTone.border}`,
-          background: 'linear-gradient(135deg, #0f4fbf 0%, #1a73e8 48%, #7bc6ff 100%)',
+          background: 'linear-gradient(135deg, #0f4fbf 0%, #1a73e8 50%, #5ba7ff 100%)',
           color: '#ffffff',
-          boxShadow: '0 34px 80px rgba(26, 115, 232, 0.24)',
+          boxShadow: '0 20px 60px rgba(26, 115, 232, 0.18), 0 4px 16px rgba(15, 79, 191, 0.1)',
         }}
       >
         <Stack
           direction={{ xs: 'column', lg: 'row' }}
-          spacing={{ xs: 3, lg: 4 }}
+          spacing={{ xs: 2.5, lg: 3 }}
           sx={{
-            p: { xs: 3, md: 4.5 },
+            p: { xs: 2.5, md: 3.5 },
             position: 'relative',
             '&::before': {
               content: '""',
               position: 'absolute',
-              inset: 'auto -10% -25% auto',
-              width: { xs: 220, md: 320 },
-              height: { xs: 220, md: 320 },
+              inset: 'auto -5% -20% auto',
+              width: { xs: 180, md: 280 },
+              height: { xs: 180, md: 280 },
               borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 72%)',
+              background: 'radial-gradient(circle, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 70%)',
+              pointerEvents: 'none',
+            },
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              top: -40,
+              right: '30%',
+              width: 120,
+              height: 120,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)',
+              pointerEvents: 'none',
             },
           }}
         >
-          <Stack spacing={2.6} sx={{ flex: 1, position: 'relative', zIndex: 1 }}>
+          <Stack spacing={2.2} sx={{ flex: 1, position: 'relative', zIndex: 1 }}>
             <Stack direction="row" spacing={1} alignItems="center">
               <Box
                 sx={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: 1,
+                  gap: 0.8,
                   px: 1.4,
-                  py: 0.8,
-                  borderRadius: '999px',
+                  py: 0.7,
+                  borderRadius: '12px',
                   bgcolor: 'rgba(255,255,255,0.12)',
                   backdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(255,255,255,0.08)',
                 }}
               >
-                <ShieldRoundedIcon sx={{ fontSize: 17 }} />
-                <Typography sx={{ fontSize: '0.8rem', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                <ShieldRoundedIcon sx={{ fontSize: 15 }} />
+                <Typography sx={{ fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                   Ruang Aman Open BK
                 </Typography>
               </Box>
@@ -104,43 +117,44 @@ function StudentDashboard() {
             <Box>
               <Typography
                 sx={{
-                  fontSize: { xs: '2.2rem', md: '3.25rem' },
+                  fontSize: { xs: '2rem', md: '2.8rem' },
                   fontWeight: 900,
-                  letterSpacing: '-0.05em',
-                  lineHeight: 1,
-                  mb: 1.4,
+                  letterSpacing: '-0.04em',
+                  lineHeight: 1.1,
+                  mb: 1.2,
                 }}
               >
                 Hai, {session?.nis || 'Siswa'}.
               </Typography>
               <Typography
                 sx={{
-                  maxWidth: 620,
-                  color: 'rgba(255,255,255,0.88)',
-                  fontSize: { xs: '0.98rem', md: '1.04rem' },
-                  lineHeight: 1.75,
+                  maxWidth: 560,
+                  color: 'rgba(255,255,255,0.9)',
+                  fontSize: { xs: '0.92rem', md: '1rem' },
+                  lineHeight: 1.7,
                 }}
               >
-                Tempat untuk bercerita tanpa ribut, tanpa takut dihakimi. Kamu bisa menghubungi Guru BK,
-                melihat balasan, dan membuka materi pendukung dari satu ruang yang tenang dan privat.
+                Tempat bercerita tanpa ribut, tanpa dihakimi. Hubungi Guru BK, lihat balasan, dan akses materi pendukung dari satu ruang yang tenang dan privat.
               </Typography>
             </Box>
 
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.3}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.2}>
               <Button
                 onClick={() => router.navigate({ to: '/student/send-letter' })}
                 variant="contained"
                 disableElevation
                 sx={{
                   alignSelf: 'flex-start',
-                  borderRadius: '999px',
-                  px: 2.8,
-                  py: 1.25,
+                  borderRadius: '14px',
+                  px: 2.5,
+                  py: 1.2,
                   textTransform: 'none',
                   fontWeight: 800,
+                  fontSize: '0.9rem',
                   color: dashboardTone.primaryDeep,
                   bgcolor: '#ffffff',
-                  '&:hover': { bgcolor: '#eef6ff' },
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+                  '&:hover': { bgcolor: '#f0f6ff' },
                 }}
               >
                 Cerita Sekarang
@@ -150,13 +164,14 @@ function StudentDashboard() {
                 variant="outlined"
                 sx={{
                   alignSelf: 'flex-start',
-                  borderRadius: '999px',
-                  px: 2.8,
-                  py: 1.25,
+                  borderRadius: '14px',
+                  px: 2.5,
+                  py: 1.2,
                   textTransform: 'none',
                   fontWeight: 700,
+                  fontSize: '0.9rem',
                   color: '#ffffff',
-                  borderColor: 'rgba(255,255,255,0.34)',
+                  borderColor: 'rgba(255,255,255,0.3)',
                   '&:hover': {
                     borderColor: '#ffffff',
                     bgcolor: 'rgba(255,255,255,0.08)',
@@ -171,7 +186,7 @@ function StudentDashboard() {
           <Stack
             spacing={1.5}
             sx={{
-              width: { xs: '100%', lg: 310 },
+              width: { xs: '100%', lg: 280 },
               position: 'relative',
               zIndex: 1,
             }}
@@ -179,23 +194,23 @@ function StudentDashboard() {
             <Paper
               elevation={0}
               sx={{
-                p: 2.2,
-                borderRadius: '28px',
+                p: 2,
+                borderRadius: '20px',
                 color: '#ffffff',
-                background: 'rgba(255,255,255,0.12)',
+                background: 'rgba(255,255,255,0.1)',
                 backdropFilter: 'blur(14px)',
-                border: '1px solid rgba(255,255,255,0.16)',
+                border: '1px solid rgba(255,255,255,0.12)',
               }}
             >
-              <Typography sx={{ fontSize: '0.74rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', opacity: 0.82, mb: 1 }}>
+              <Typography sx={{ fontSize: '0.68rem', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.8, mb: 1.2 }}>
                 Status Hari Ini
               </Typography>
-              <Stack spacing={1.2}>
+              <Stack spacing={1}>
                 <MetricRow
                   label="Surat terkirim"
                   value={
                     loading ? (
-                      <CircularProgress size={16} sx={{ color: '#ffffff' }} />
+                      <CircularProgress size={14} sx={{ color: '#ffffff' }} />
                     ) : (
                       `${letterCount ?? 0}`
                     )
@@ -209,38 +224,38 @@ function StudentDashboard() {
             <Paper
               elevation={0}
               sx={{
-                p: 2.2,
-                borderRadius: '28px',
+                p: 2,
+                borderRadius: '20px',
                 color: '#ffffff',
-                background: 'rgba(7, 23, 55, 0.22)',
-                border: '1px solid rgba(255,255,255,0.14)',
+                background: 'rgba(7, 23, 55, 0.2)',
+                border: '1px solid rgba(255,255,255,0.1)',
               }}
             >
-              <Typography sx={{ fontSize: '1rem', fontWeight: 700, lineHeight: 1.6 }}>
-                “Bercerita itu bukan tanda lemah. Itu tanda kamu mau ditolong dengan cara yang sehat.”
+              <Typography sx={{ fontSize: '0.9rem', fontWeight: 700, lineHeight: 1.6, fontStyle: 'italic' }}>
+                "Bercerita itu bukan tanda lemah. Itu tanda kamu mau ditolong dengan cara yang sehat."
               </Typography>
             </Paper>
           </Stack>
         </Stack>
       </Paper>
 
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1.1fr 0.9fr' }, gap: 2.5 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1.15fr 0.85fr' }, gap: 2 }}>
         <FeatureCard
-          icon={<ForumRoundedIcon sx={{ fontSize: 24 }} />}
+          icon={<ForumRoundedIcon sx={{ fontSize: 22 }} />}
           eyebrow="Percakapan"
-          title="Surat pribadi ke Guru BK"
-          description="Tulis apa yang sedang kamu rasakan, lalu cek balasan tanpa perlu keluar dari dashboard."
+          title="Surat Pribadi ke Guru BK"
+          description="Tulis apa yang kamu rasakan, lalu cek balasan tanpa perlu keluar dari dashboard."
           action="Buka Surat"
-          accent="linear-gradient(135deg, rgba(26,115,232,0.10) 0%, rgba(123,198,255,0.20) 100%)"
+          accent="linear-gradient(135deg, rgba(26,115,232,0.08) 0%, rgba(91,167,255,0.15) 100%)"
           onClick={() => router.navigate({ to: '/student/send-letter' })}
         />
         <FeatureCard
-          icon={<FolderOpenRoundedIcon sx={{ fontSize: 24 }} />}
+          icon={<FolderOpenRoundedIcon sx={{ fontSize: 22 }} />}
           eyebrow="Pendampingan"
-          title="Repository panduan siswa"
-          description="Kumpulan materi pengembangan diri, tips belajar, dan dokumen pendukung yang bisa kamu buka kapan saja."
+          title="Repository Panduan Siswa"
+          description="Kumpulan materi pengembangan diri, tips belajar, dan dokumen pendukung."
           action="Lihat Materi"
-          accent="linear-gradient(135deg, rgba(15,79,191,0.08) 0%, rgba(26,115,232,0.16) 100%)"
+          accent="linear-gradient(135deg, rgba(15,79,191,0.06) 0%, rgba(26,115,232,0.12) 100%)"
           onClick={() => router.navigate({ to: '/student/repository' })}
         />
       </Box>
@@ -248,27 +263,27 @@ function StudentDashboard() {
       <Paper
         elevation={0}
         sx={{
-          p: { xs: 2.2, md: 3 },
-          borderRadius: '30px',
+          mx: { xs: 1, md: 2 },
+          p: { xs: 2, md: 2.5 },
+          borderRadius: '20px',
           bgcolor: dashboardTone.card,
           border: `1px solid ${dashboardTone.border}`,
-          boxShadow: '0 18px 42px rgba(148, 163, 184, 0.10)',
+          boxShadow: '0 8px 32px rgba(148, 163, 184, 0.08)',
         }}
       >
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2.5} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }}>
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 2, md: 3 }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }}>
           <Box>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-              <AutoAwesomeRoundedIcon sx={{ color: dashboardTone.primary }} />
-              <Typography sx={{ fontSize: '0.78rem', fontWeight: 800, color: dashboardTone.primary, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              <AutoAwesomeRoundedIcon sx={{ fontSize: 18, color: dashboardTone.primary }} />
+              <Typography sx={{ fontSize: '0.72rem', fontWeight: 800, color: dashboardTone.primary, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                 Catatan Kecil
               </Typography>
             </Stack>
-            <Typography sx={{ fontSize: { xs: '1.08rem', md: '1.2rem' }, fontWeight: 700, color: dashboardTone.text, lineHeight: 1.55 }}>
+            <Typography sx={{ fontSize: { xs: '1rem', md: '1.1rem' }, fontWeight: 700, color: dashboardTone.text, lineHeight: 1.5 }}>
               Kamu tidak harus menunggu keadaan memburuk untuk mulai bercerita.
             </Typography>
-            <Typography sx={{ mt: 1, color: dashboardTone.muted, lineHeight: 1.7, maxWidth: 720 }}>
-              Kalau ada hal yang mengganggu fokus, suasana hati, atau hubunganmu di sekolah, kirim surat lebih awal.
-              Percakapan yang baik biasanya dimulai dari satu pesan singkat yang jujur.
+            <Typography sx={{ mt: 1, color: dashboardTone.muted, lineHeight: 1.7, maxWidth: 640, fontSize: '0.88rem' }}>
+              Kirim surat lebih awal. Percakapan yang baik dimulai dari satu pesan singkat yang jujur.
             </Typography>
           </Box>
 
@@ -276,14 +291,15 @@ function StudentDashboard() {
             onClick={() => router.navigate({ to: '/student/send-letter' })}
             sx={{
               flexShrink: 0,
-              borderRadius: '999px',
-              px: 2.2,
-              py: 1.15,
+              borderRadius: '14px',
+              px: 2,
+              py: 1.1,
               textTransform: 'none',
               fontWeight: 800,
+              fontSize: '0.88rem',
               color: dashboardTone.primary,
               bgcolor: dashboardTone.primarySoft,
-              '&:hover': { bgcolor: 'rgba(26, 115, 232, 0.16)' },
+              '&:hover': { bgcolor: 'rgba(26, 115, 232, 0.1)' },
             }}
           >
             Mulai Sekarang
@@ -297,8 +313,8 @@ function StudentDashboard() {
 function MetricRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={2}>
-      <Typography sx={{ color: 'rgba(255,255,255,0.74)', fontSize: '0.9rem' }}>{label}</Typography>
-      <Typography sx={{ fontWeight: 800, fontSize: '1rem' }}>{value}</Typography>
+      <Typography sx={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem' }}>{label}</Typography>
+      <Typography sx={{ fontWeight: 800, fontSize: '0.95rem' }}>{value}</Typography>
     </Stack>
   );
 }
@@ -325,25 +341,25 @@ function FeatureCard({
       elevation={0}
       onClick={onClick}
       sx={{
-        p: 2.6,
-        borderRadius: '30px',
+        p: 2.5,
+        borderRadius: '20px',
         cursor: 'pointer',
         bgcolor: '#ffffff',
         border: `1px solid ${dashboardTone.border}`,
-        boxShadow: '0 18px 40px rgba(148, 163, 184, 0.10)',
-        transition: 'transform 180ms ease, box-shadow 180ms ease',
+        boxShadow: '0 8px 32px rgba(148, 163, 184, 0.08)',
+        transition: 'transform 160ms ease, box-shadow 160ms ease',
         '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: '0 28px 52px rgba(26, 115, 232, 0.14)',
+          transform: 'translateY(-3px)',
+          boxShadow: '0 16px 40px rgba(26, 115, 232, 0.12)',
         },
       }}
     >
-      <Stack spacing={2.2} sx={{ height: '100%' }}>
+      <Stack spacing={2} sx={{ height: '100%' }}>
         <Box
           sx={{
-            width: 54,
-            height: 54,
-            borderRadius: '18px',
+            width: 50,
+            height: 50,
+            borderRadius: '16px',
             display: 'grid',
             placeItems: 'center',
             color: dashboardTone.primary,
@@ -353,19 +369,19 @@ function FeatureCard({
           {icon}
         </Box>
         <Box>
-          <Typography sx={{ fontSize: '0.76rem', fontWeight: 800, color: dashboardTone.primary, letterSpacing: '0.08em', textTransform: 'uppercase', mb: 0.8 }}>
+          <Typography sx={{ fontSize: '0.7rem', fontWeight: 800, color: dashboardTone.primary, letterSpacing: '0.1em', textTransform: 'uppercase', mb: 0.7 }}>
             {eyebrow}
           </Typography>
-          <Typography sx={{ fontSize: '1.28rem', fontWeight: 800, color: dashboardTone.text, letterSpacing: '-0.03em', mb: 1 }}>
+          <Typography sx={{ fontSize: '1.2rem', fontWeight: 800, color: dashboardTone.text, letterSpacing: '-0.03em', mb: 0.9 }}>
             {title}
           </Typography>
-          <Typography sx={{ color: dashboardTone.muted, lineHeight: 1.7 }}>
+          <Typography sx={{ color: dashboardTone.muted, lineHeight: 1.65, fontSize: '0.88rem' }}>
             {description}
           </Typography>
         </Box>
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 'auto', color: dashboardTone.primary, fontWeight: 800 }}>
+        <Stack direction="row" spacing={0.8} alignItems="center" sx={{ mt: 'auto', color: dashboardTone.primary, fontWeight: 800, fontSize: '0.88rem' }}>
           <Typography>{action}</Typography>
-          <ArrowOutwardRoundedIcon sx={{ fontSize: 18 }} />
+          <ArrowOutwardRoundedIcon sx={{ fontSize: 16 }} />
         </Stack>
       </Stack>
     </Paper>
